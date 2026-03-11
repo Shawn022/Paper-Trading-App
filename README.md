@@ -1,169 +1,114 @@
-Paper Trading Backend
+# 📈 Paper Trading Backend
 
-A Spring Boot backend application that simulates stock trading.
-Users can register, log in, buy and sell stocks, and track their portfolio and trade history.
+A robust **Spring Boot** application designed to simulate stock market trading. This project allows users to practice trading strategies in a risk-free environment by providing a virtual brokerage experience. 
 
-This project demonstrates REST API development, layered backend architecture, and financial transaction logic.
+This project demonstrates proficiency in **REST API design**, **layered architecture**, and the complex **business logic** required for financial transactions.
 
-Tech Stack
+---
 
-Java
-Spring Boot
-Spring Data JPA
-MySQL
-Maven
-REST APIs
+## 🛠 Tech Stack
 
-Architecture
+* **Language:** Java 17+
+* **Framework:** Spring Boot (Web, Data JPA)
+* **Database:** MySQL
+* **Build Tool:** Maven
+* **API Testing:** Postman / Swagger
 
-The project follows a layered architecture commonly used in backend systems.
+---
 
-Controller → Service → Repository → Database
+## 🏗 Architecture
 
-Controller
-Handles API requests and responses.
+The project follows a standard layered architecture to ensure separation of concerns and maintainability.
 
-Service
-Contains business logic such as trade validation and portfolio updates.
 
-Repository
-Handles database interaction using Spring Data JPA.
 
-Entity
-Represents database tables.
+### Layers
+* **Controller:** Handles incoming REST requests and maps them to service methods.
+* **Service:** The "brain" of the app. Manages trade validation, balance checks, and portfolio logic.
+* **Repository:** Interacts with the MySQL database using Spring Data JPA.
+* **Entity:** Defines the database schema (Users, Trades, Portfolios).
+* **DTO (Data Transfer Object):** Facilitates secure and optimized data transfer between client and server.
 
-DTO
-Handles request and response objects.
+---
 
-API Endpoints
-User APIs
+## 📡 API Endpoints
 
-Register User
-POST /api/users/register
+### User Management
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/users/register` | `POST` | Create a new user account |
+| `/api/users/login` | `POST` | Authenticate user credentials |
 
-Example request:
+### Trading Operations
+| Endpoint | Method | Description | Validation |
+| :--- | :--- | :--- | :--- |
+| `/api/users/trade/buy` | `POST` | Purchase shares | Sufficient cash balance required |
+| `/api/users/trade/sell` | `POST` | Sell owned shares | Must own the asset & sufficient quantity |
 
-{
-"name": "John",
-"email": "john@example.com
-",
-"password": "password123"
-}
+### Portfolio & History
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/users/{userId}/portfolio` | `GET` | View current holdings and average buy prices |
+| `/api/users/{userId}/trades` | `GET` | Retrieve full history of buy/sell transactions |
 
-Login User
-POST /api/users/login
+---
 
-Example request:
+## 🚀 Getting Started
 
-{
-"email": "john@example.com
-",
-"password": "password123"
-}
+### Prerequisites
+* JDK 17 or higher
+* Maven 3.6+
+* MySQL Server
 
-Trading APIs
+### Installation & Setup
 
-Buy Stock
-POST /api/users/trade/buy
+1.  **Clone the repository**
+    ```bash
+    git clone [https://github.com/YOUR_USERNAME/paper-trading-backend.git](https://github.com/YOUR_USERNAME/paper-trading-backend.git)
+    cd paper-trading-backend
+    ```
 
-Example request:
+2.  **Database Configuration**
+    Create a new schema in MySQL:
+    ```sql
+    CREATE DATABASE paper_trading;
+    ```
 
-{
-"userId": 1,
-"symbol": "AAPL",
-"quantity": 10,
-"price": 150
-}
+3.  **Configure `application.properties`**
+    Update `src/main/resources/application.properties` with your credentials:
+    ```properties
+    spring.datasource.url=jdbc:mysql://localhost:3306/paper_trading
+    spring.datasource.username=your_username
+    spring.datasource.password=your_password
+    spring.jpa.hibernate.ddl-auto=update
+    ```
 
-Validation:
-User must have sufficient balance.
+4.  **Run the Application**
+    ```bash
+    mvn spring-boot:run
+    ```
+    The server will start at `http://localhost:8080`.
 
-Sell Stock
-POST /api/users/trade/sell
+---
 
-Example request:
+## 💡 Key Features & Logic
 
-{
-"userId": 1,
-"symbol": "AAPL",
-"quantity": 5,
-"price": 160
-}
+* **Transaction Integrity:** Ensures that a user cannot buy more than they can afford or sell more than they own.
+* **Portfolio Tracking:** Automatically updates quantities and calculates the average purchase price as trades occur.
+* **Relational Mapping:** Uses JPA associations to link users to their specific trade history and current holdings.
 
-Validation:
-User must own the stock.
-User must have enough shares.
+---
 
-Portfolio API
+## 🔮 Future Improvements
+* [ ] **JWT Authentication:** Secure endpoints with token-based login.
+* [ ] **Real-time Data:** Integrate a third-party API (like Alpha Vantage) for live prices.
+* [ ] **Analytics:** Add Portfolio Profit/Loss (P&L) tracking.
+* [ ] **Docker:** Containerize the application for easy deployment.
 
-Get User Portfolio
-GET /api/users/{userId}/portfolio
+---
 
-Example response:
-
-[
-{
-"symbol": "AAPL",
-"quantity": 15,
-"averagePrice": 120
-}
-]
-
-Trade History API
-
-Get User Trades
-GET /api/users/{userId}/trades
-
-Example response:
-
-[
-{
-"symbol": "AAPL",
-"type": "BUY",
-"quantity": 10,
-"price": 150
-}
-]
-
-Running the Project
-
-Clone the repository
-
-git clone https://github.com/YOUR_USERNAME/paper-trading-backend.git
-
-Navigate to the project
-
-cd paper-trading-backend
-
-Create MySQL database
-
-CREATE DATABASE paper_trading;
-
-Configure database in application.properties
-
-spring.datasource.url=jdbc:mysql://localhost:3306/paper_trading
-spring.datasource.username=root
-spring.datasource.password=yourpassword
-
-Run the application
-
-mvn spring-boot:run
-
-Server will start at
-http://localhost:8080
-
-Future Improvements
-
-JWT authentication
-Real-time stock price API integration
-Portfolio profit/loss calculation
-Stock suggestion engine
-Docker deployment
-
-Learning Outcomes
-
-REST API development using Spring Boot
-Financial transaction validation
-Backend architecture design
-Database interaction using JPA
-Error handling in APIs
+## 🎓 Learning Outcomes
+* Architecting scalable Java applications using Spring Boot.
+* Managing complex relational data with Hibernate/JPA.
+* Implementing strict financial validation logic.
+* Standardizing API responses and error handling.
