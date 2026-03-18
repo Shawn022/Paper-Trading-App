@@ -2,6 +2,7 @@ package com.papertrading.backend.user;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +19,7 @@ public class User {
 
     private String password;
 
-    private Double balance;
+    private BigDecimal balance;
 
     @Column(nullable = false,updatable = false)
     private LocalDateTime createdAt;
@@ -30,7 +31,7 @@ public class User {
         this.name=name;
         this.email=email;
         this.password=password;
-        this.balance = 100000.00;
+        this.balance = new BigDecimal("100000");
         createdAt = LocalDateTime.now();
 
     }
@@ -61,11 +62,11 @@ public class User {
         return password;
     }
 
-    public Double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 }

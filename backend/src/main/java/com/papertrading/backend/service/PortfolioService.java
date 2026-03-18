@@ -3,13 +3,11 @@ package com.papertrading.backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import com.papertrading.backend.user.User;
-import com.papertrading.backend.user.UserRepository;
-
-import com.papertrading.backend.portfolio.Portfolio;
-import com.papertrading.backend.portfolio.PortfolioRepository;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.papertrading.backend.user.*;
+import com.papertrading.backend.portfolio.*;
+import com.papertrading.backend.dto.portfolio.*;
 
 import java.util.List;
 
@@ -22,7 +20,7 @@ public class PortfolioService {
     @Autowired
     private PortfolioRepository portfolioRepository;
 
-    public List<Portfolio> getPortfolio(Long userId){
+    public List<GetPortfolioResponse> getPortfolio(Long userId){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,

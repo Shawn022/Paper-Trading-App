@@ -1,17 +1,17 @@
 package com.papertrading.backend.controller;
 
-import com.papertrading.backend.dto.LoginRequest;
+import com.papertrading.backend.dto.user.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.papertrading.backend.user.User;
 import com.papertrading.backend.service.UserService;
-import com.papertrading.backend.dto.RegisterUserRequest;
+import com.papertrading.backend.dto.user.RegisterUserRequest;
 
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 public class UserController {
     @Autowired
     private UserService userService;

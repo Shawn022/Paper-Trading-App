@@ -2,6 +2,7 @@ package com.papertrading.backend.trade;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.papertrading.backend.user.User;
@@ -23,10 +24,10 @@ public class Trade {
     private String type;
 
     @Column(nullable = false)
-    private Double quantity;
+    private BigDecimal quantity;
 
     @Column(nullable = false)
-    private Double price;
+    private BigDecimal price;
 
     @Column(nullable = false,updatable = false)
     private LocalDateTime timestamp;
@@ -54,19 +55,19 @@ public class Trade {
         return stockSymbol;
     }
 
-    public void setQuantity(Double quantity) {
+    public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 
-    public Double getQuantity() {
+    public BigDecimal getQuantity() {
         return quantity;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 

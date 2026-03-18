@@ -1,10 +1,13 @@
 package com.papertrading.backend.service;
 
+import com.papertrading.backend.dto.stock.StockPriceResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.math.BigDecimal;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,9 +18,9 @@ import com.papertrading.backend.portfolio.Portfolio;
 import com.papertrading.backend.user.UserRepository;
 import com.papertrading.backend.trade.TradeRepository;
 import com.papertrading.backend.portfolio.PortfolioRepository;
+import com.papertrading.backend.service.stock.StockCache;
 
-import com.papertrading.backend.dto.BuyStockRequest;
-import com.papertrading.backend.dto.SellStockRequest;
+import com.papertrading.backend.dto.trade.*;
 
 
 @Service
@@ -32,7 +35,10 @@ public class TradeService {
     @Autowired
     private PortfolioRepository portfolioRepository;
 
-    public List<Trade> getAllTrades(Long userId){
+    @Autowired
+    private StockCache stockCache;
+
+    public List<GetTradeResponse> getAllTrades(Long userId){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -47,27 +53,29 @@ public class TradeService {
                         HttpStatus.NOT_FOUND,
                         "User not found"
                 ));
-        Double totalCost = request.getQuantity()*request.getPrice();
+        BigDecimal price = stockCache.getStock( request.getSymbol() ).getPrice();
+        BigDecimal totalCost = request.getQuantity().multiply(price) ;
 
-        if (user.getBalance()<totalCost) {
+        if (user.getBalance().compareTo(totalCost) < 0 ) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Insufficient balance"
             );
         }
 
-        user.setBalance(user.getBalance() - totalCost);
+        user.setBalance(user.getBalance().subtract(totalCost) );
 
         Portfolio portfolio = portfolioRepository
                 .findByUserAndStockSymbol(user, request.getSymbol())
                 .orElse(null);
 
         if (portfolio == null) {
-            portfolio = new Portfolio(user, request.getSymbol(), request.getQuantity(), request.getPrice());
+            portfolio = new Portfolio(user, request.getSymbol(), request.getQuantity(), price);
         } else {
-            Double newAvgBuyPrice = ( portfolio.getAvgBuyPrice()* portfolio.getQuantity() + totalCost )/(portfolio.getQuantity() + request.getQuantity()) ;
+            BigDecimal newAvgBuyPrice = ( portfolio.getTotal().add(totalCost) )
+                    .divide(portfolio.getQuantity().add(request.getQuantity()), 2, RoundingMode.HALF_UP);
             portfolio.setAvgBuyPrice(newAvgBuyPrice);
-            portfolio.setQuantity(portfolio.getQuantity() + request.getQuantity());
+            portfolio.setQuantity(portfolio.getQuantity().add(request.getQuantity()) );
         }
         portfolioRepository.save(portfolio);
 
@@ -76,7 +84,7 @@ public class TradeService {
         trade.setUser(user);
         trade.setStockSymbol(request.getSymbol());
         trade.setQuantity(request.getQuantity());
-        trade.setPrice(request.getPrice());
+        trade.setPrice(price);
         trade.setType("BUY");
         trade.setTimestamp(LocalDateTime.now());
 
@@ -98,28 +106,28 @@ public class TradeService {
                         "Stock not owned"
                 ));
 
-        if (portfolio.getQuantity() < request.getQuantity()) {
+        if (portfolio.getQuantity().compareTo(request.getQuantity()) < 0) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Not enough shares"
             );
         }
 
-        portfolio.setQuantity(portfolio.getQuantity() - request.getQuantity());
+        BigDecimal price = stockCache.getStock( request.getSymbol() ).getPrice();
+        BigDecimal total = request.getQuantity().multiply(price);
 
-        double total = request.getQuantity() * request.getPrice();
-
-        user.setBalance(user.getBalance() + total);
-
-        portfolioRepository.save(portfolio);
+        user.setBalance(user.getBalance().add(total) );
 
         Trade trade = new Trade();
         trade.setUser(user);
         trade.setStockSymbol(request.getSymbol());
         trade.setQuantity(request.getQuantity());
-        trade.setPrice(request.getPrice());
+        trade.setPrice(price);
         trade.setType("SELL");
         trade.setTimestamp(java.time.LocalDateTime.now());
+
+        portfolio.setQuantity(portfolio.getQuantity().subtract(request.getQuantity()) );
+        portfolioRepository.save(portfolio);
 
         tradeRepository.save(trade);
     }

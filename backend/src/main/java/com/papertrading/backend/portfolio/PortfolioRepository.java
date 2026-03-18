@@ -4,9 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.List;
 import com.papertrading.backend.user.User;
+import com.papertrading.backend.dto.portfolio.GetPortfolioResponse;
 
 public interface PortfolioRepository extends JpaRepository<Portfolio,Long> {
-    List<Portfolio> findByUser(User user);
+    List<GetPortfolioResponse> findByUser(User user);
 
     Optional<Portfolio> findByUserAndStockSymbol(User user, String symbol);
 }

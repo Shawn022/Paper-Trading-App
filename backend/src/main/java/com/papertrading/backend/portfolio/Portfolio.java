@@ -1,6 +1,7 @@
 package com.papertrading.backend.portfolio;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 
 import com.papertrading.backend.user.User;
 
@@ -21,13 +22,13 @@ public class Portfolio {
     private User user;
 
     private String stockSymbol;
-    private Double quantity;
-    private Double avgBuyPrice;
+    private BigDecimal quantity;
+    private BigDecimal avgBuyPrice;
 
     //constructors
     public Portfolio(){}
 
-    public Portfolio(User user, String symbol, Double quantity, Double avgBuyPrice) {
+    public Portfolio(User user, String symbol, BigDecimal quantity, BigDecimal avgBuyPrice) {
         this.user = user;
         this.stockSymbol = symbol;
         this.quantity = quantity;
@@ -46,11 +47,11 @@ public class Portfolio {
         this.stockSymbol = symbol;
     }
 
-    public Double getQuantity() {
+    public BigDecimal getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Double quantity) {
+    public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 
@@ -62,8 +63,12 @@ public class Portfolio {
         this.user = user;
     }
 
-    public Double getAvgBuyPrice() { return avgBuyPrice; }
+    public BigDecimal getAvgBuyPrice() { return avgBuyPrice; }
 
-    public void setAvgBuyPrice(Double price) { this.avgBuyPrice = price; }
+    public void setAvgBuyPrice(BigDecimal price) { this.avgBuyPrice = price; }
+
+    public BigDecimal getTotal(){
+        return quantity.multiply(avgBuyPrice);
+    }
 
 }

@@ -7,20 +7,19 @@ import org.springframework.http.ResponseEntity;
 import com.papertrading.backend.trade.Trade;
 import com.papertrading.backend.service.TradeService;
 
-import com.papertrading.backend.dto.BuyStockRequest;
-import com.papertrading.backend.dto.SellStockRequest;
+import com.papertrading.backend.dto.trade.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 public class TradeController {
     @Autowired
     private TradeService tradeService;
 
     @GetMapping("/{userId}/trades")
-    public List<Trade> allTrades(@PathVariable long userId){
+    public List<GetTradeResponse> allTrades(@PathVariable long userId){
         return tradeService.getAllTrades(userId);
     }
 

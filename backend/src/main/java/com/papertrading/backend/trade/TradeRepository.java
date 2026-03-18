@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.Optional;
 
 import com.papertrading.backend.user.User;
+import com.papertrading.backend.dto.trade.GetTradeResponse;
 
 public interface TradeRepository extends JpaRepository<Trade,Long> {
-    List<Trade> findByUser(User user);
+    List<GetTradeResponse> findByUser(User user);
 
-    List<Trade> findByUser_idOrderByTimestampDesc(Long userId);
+    List<GetTradeResponse> findByUser_idOrderByTimestampDesc(Long userId);
 
-    List<Trade> findByUser_Email(String email);
+    List<GetTradeResponse> findByUser_Email(String email);
 }
