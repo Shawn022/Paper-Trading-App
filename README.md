@@ -64,7 +64,7 @@ The project follows a standard layered architecture to ensure separation of conc
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/YOUR_USERNAME/paper-trading-backend.git](https://github.com/YOUR_USERNAME/paper-trading-backend.git)
+    git clone [https://github.com/Shawn022/paper-trading-backend.git](https://github.com/Shawn022/paper-trading-backend.git)
     cd paper-trading-backend
     ```
 
