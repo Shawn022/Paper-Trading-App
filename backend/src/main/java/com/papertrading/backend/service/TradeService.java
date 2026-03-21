@@ -47,8 +47,8 @@ public class TradeService {
         return tradeRepository.findByUser_idOrderByTimestampDesc(userId);
     }
 
-    public void buyStock(BuyStockRequest request){
-        User user = userRepository.findByEmail(request.getEmail())
+    public void buyStock(BuyStockRequest request,Long userId){
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "User not found"
@@ -91,9 +91,9 @@ public class TradeService {
         tradeRepository.save(trade);
     }
 
-    public void sellStock(SellStockRequest request) {
+    public void sellStock(SellStockRequest request,Long userId) {
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "User not found"

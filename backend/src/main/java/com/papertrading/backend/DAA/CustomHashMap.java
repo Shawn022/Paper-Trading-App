@@ -1,5 +1,10 @@
 package com.papertrading.backend.DAA;
 
+import com.papertrading.backend.dto.stock.StockPriceResponse;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class CustomHashMap <K,V >{
     private static class Node<K,V> {
         K key;
@@ -62,5 +67,19 @@ public class CustomHashMap <K,V >{
         }
 
         return null;
+    }
+
+    public List<V> getAll(){
+        List<V> res = new ArrayList<>();
+        for(int i=0;i<capacity;i++){
+            Node<K, V> head = buckets[i];
+            while (head != null) {
+
+                res.add(head.value);
+
+                head = head.next;
+            }
+        }
+        return res;
     }
 }

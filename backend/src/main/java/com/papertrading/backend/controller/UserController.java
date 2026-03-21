@@ -1,13 +1,12 @@
 package com.papertrading.backend.controller;
 
-import com.papertrading.backend.dto.user.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.papertrading.backend.user.User;
 import com.papertrading.backend.service.UserService;
-import com.papertrading.backend.dto.user.RegisterUserRequest;
+import com.papertrading.backend.dto.user.*;
 
 
 @RestController

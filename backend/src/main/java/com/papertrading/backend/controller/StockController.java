@@ -9,12 +9,18 @@ import com.papertrading.backend.dto.stock.StockPriceResponse;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/stock")
 public class StockController {
     @Autowired
     private StockCache stockCache;
+
+    @GetMapping
+    public List<StockPriceResponse> getAllStocks(){
+        return stockCache.getAllStocks();
+    }
 
     @GetMapping("/{symbol}")
     public BigDecimal getStock(@PathVariable String symbol){

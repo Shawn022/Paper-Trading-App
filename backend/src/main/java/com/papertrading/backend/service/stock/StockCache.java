@@ -4,6 +4,8 @@ import com.papertrading.backend.DAA.CustomHashMap;
 import com.papertrading.backend.dto.stock.StockPriceResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class StockCache {
     private CustomHashMap<String , StockPriceResponse> cache= new CustomHashMap<>();
@@ -14,5 +16,9 @@ public class StockCache {
 
     public StockPriceResponse getStock(String symbol) {
         return cache.get(symbol);
+    }
+
+    public List<StockPriceResponse> getAllStocks(){
+        return cache.getAll();
     }
 }
