@@ -74,13 +74,12 @@ The project follows a standard layered architecture to ensure separation of conc
     CREATE DATABASE paper_trading;
     ```
 
-3.  **Configure `application.properties`**
-    Update `src/main/resources/application.properties` with your credentials:
-    ```properties
-    spring.datasource.url=jdbc:mysql://localhost:3306/paper_trading
-    spring.datasource.username=your_username
-    spring.datasource.password=your_password
-    spring.jpa.hibernate.ddl-auto=update
+3.  **Configure `application.properties`**:
+    ```.env
+    Make .env files and setup these variables for application.properties
+    spring.datasource.url=${DB_ADD}
+    spring.datasource.username=${DB_USERNAME}
+    spring.datasource.password=${DB_PASSWORD}
     ```
 
 4.  **Run the Application**
