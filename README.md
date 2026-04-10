@@ -74,12 +74,12 @@ The project follows a standard layered architecture to ensure separation of conc
     CREATE DATABASE paper_trading;
     ```
 
-3.  **Configure `application.properties`**:
+3.  **Create `.env`**:
     ```.env
-    Make .env files and setup these variables for application.properties
-    spring.datasource.url=${DB_ADD}
-    spring.datasource.username=${DB_USERNAME}
-    spring.datasource.password=${DB_PASSWORD}
+    Make .env file and setup these variables for application.properties
+    spring.datasource.url=Your_DB_Address
+    spring.datasource.username=Your_DB_Username
+    spring.datasource.password=Your_DB_Password
     ```
 
 4.  **Run the Application**
