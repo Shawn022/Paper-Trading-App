@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphs - Paper Trading</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar fade-in">
+            <div class="sidebar-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zm-4-4h-2v-4h-2v4H9v-6h2V9h2v4h2v4z"/></svg>
+                PaperTrade
+            </div>
+            <nav class="nav-links mt-4">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="graph.html" class="nav-link active">Graphs</a>
+                <a href="trading.html" class="nav-link">Trading</a>
+                <a href="history.html" class="nav-link">History</a>
+                <a href="learn.html" class="nav-link">Learn</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
+                    <span class="user-name-display font-bold">User</span>
+                    <div class="avatar user-avatar-display">U</div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area fade-in">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-2xl">Stock Graphs</h1>
+                </div>
+
+                <!-- Chart Area -->
+                <div class="card w-full" style="height: 480px; position: relative;">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-4">
+                            <h2 class="text-xl" id="chart-title">Market Activity</h2>
+                            <div id="stock-tiles-container" class="stock-tiles-container">
+                                <!-- Tiles rendered by JS -->
+                            </div>
+                        </div>
+                        <div class="badge badge-green" id="live-indicator">LIVE</div>
+                    </div>
+                    <!-- Chart.js Canvas -->
+                    <div style="height: 380px; width: 100%;">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="../api.js"></script>
+    <script src="../auth.js"></script>
+    <!-- Chart JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../graph.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - Paper Trading</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar fade-in">
+            <div class="sidebar-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zm-4-4h-2v-4h-2v4H9v-6h2V9h2v4h2v4z"/></svg>
+                PaperTrade
+            </div>
+            <nav class="nav-links mt-4">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="graph.html" class="nav-link">Graphs</a>
+                <a href="trading.html" class="nav-link">Trading</a>
+                <a href="history.html" class="nav-link active">History</a>
+                <a href="learn.html" class="nav-link">Learn</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
+                    <span class="user-name-display font-bold">User</span>
+                    <div class="avatar user-avatar-display">U</div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area fade-in">
+                <h1 class="text-2xl mb-8">Trade History</h1>
+
+                <div class="card p-0" style="padding: 0; overflow: hidden;">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Symbol</th>
+                                    <th>Type</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Total Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody">
+                                <!-- Populated dynamically -->
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-8">Loading history...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="../api.js"></script>
+    <script src="../auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const tbody = document.getElementById('history-tbody');
+            
+            if(currentUser) {
+                try {
+                    const history = await window.api.getHistory(currentUser.id);
+                    
+                    if(history.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-8">No trades found. Start trading on the Trading tab!</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = '';
+                    history.forEach(trade => {
+                        const date = new Date(trade.date);
+                        const isBuy = trade.type === 'BUY';
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${date.toLocaleString()}</td>
+                            <td><a href="index.html?symbol=${trade.symbol}" class="font-bold text-primary" style="text-decoration: underline; text-underline-offset: 4px;" title="View ${trade.symbol} Chart">${trade.symbol}</a></td>
+                            <td><span class="badge ${isBuy ? 'badge-green' : 'badge-red'}">${trade.type}</span></td>
+                            <td>${trade.quantity.toLocaleString(undefined, {minimumFractionDigits: 1})}</td>
+                            <td>₹${trade.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td class="font-bold">₹${trade.total.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                } catch(e) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-red py-8">Failed to load history</td></tr>';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

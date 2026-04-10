@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading - Paper Trading</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar fade-in">
+            <div class="sidebar-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zm-4-4h-2v-4h-2v4H9v-6h2V9h2v4h2v4z"/></svg>
+                PaperTrade
+            </div>
+            <nav class="nav-links mt-4">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="graph.html" class="nav-link">Graphs</a>
+                <a href="trading.html" class="nav-link active">Trading</a>
+                <a href="history.html" class="nav-link">History</a>
+                <a href="learn.html" class="nav-link">Learn</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
+                    <span class="user-name-display font-bold">User</span>
+                    <div class="avatar user-avatar-display">U</div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area fade-in">
+                <h1 class="text-2xl mb-8">Execute Trade</h1>
+
+                <div class="flex gap-8">
+                    <!-- Left: Market Data -->
+                    <div class="flex-1 flex flex-col gap-4">
+                        <div class="card w-full">
+                            <div class="form-group mb-0">
+                                <input type="text" id="symbol-search" list="stock-options" class="form-input text-xl" placeholder="Symbol (e.g. TCS.NS)" value="TCS.NS" style="text-transform: uppercase;">
+                                <datalist id="stock-options"></datalist>
+                                <label for="symbol-search" class="form-label">Search Symbol</label>
+                            </div>
+                        </div>
+
+                        <div class="card w-full text-center py-8 mt-4">
+                            <div class="text-muted text-sm font-bold uppercase mb-2">Live Price</div>
+                            <div class="text-3xl font-bold flex justify-center items-center gap-2">
+                                ₹<span id="live-price">--.--</span>
+                                <span class="badge badge-green text-sm" id="price-change">+0.00%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Trade Execution -->
+                    <div class="card" style="width: 340px;">
+                        <h2 class="text-xl mb-4">Order Entry</h2>
+                        
+                        <div id="alert-box" class="alert mt-2" style="display: none;"></div>
+
+                        <div class="flex gap-2 mb-4">
+                            <button id="btn-buy" class="btn btn-green flex-1">Buy</button>
+                            <button id="btn-sell" class="btn btn-outline flex-1 text-red" style="border-color: var(--border);">Sell</button>
+                        </div>
+                        
+                        <input type="hidden" id="trade-type" value="BUY">
+
+                        <div class="form-group mt-6">
+                            <input type="number" id="quantity" class="form-input text-right" placeholder="0.0" min="0.01" step="0.01" value="1">
+                            <label for="quantity" class="form-label">Quantity</label>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-2 mb-6">
+                            <span class="text-muted">Available Balance:</span>
+                            <span class="font-bold text-green">₹<span id="avail-balance">0.00</span></span>
+                        </div>
+
+                        <div class="flex justify-between items-center text-xl font-bold mb-6">
+                            <span>Total</span>
+                            <span>₹<span id="total-cost">0.00</span></span>
+                        </div>
+
+                        <button id="execute-btn" class="btn btn-green btn-block text-xl py-3">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="../api.js"></script>
+    <script src="../auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const symbolInput = document.getElementById('symbol-search');
+            const livePriceEl = document.getElementById('live-price');
+            const qtyInput = document.getElementById('quantity');
+            const totalCostEl = document.getElementById('total-cost');
+            const availBalanceEl = document.getElementById('avail-balance');
+            const tradeTypeInput = document.getElementById('trade-type');
+            
+            const btnBuy = document.getElementById('btn-buy');
+            const btnSell = document.getElementById('btn-sell');
+            const executeBtn = document.getElementById('execute-btn');
+            const alertBox = document.getElementById('alert-box');
+
+            let currentPrice = 0;
+            let currentSymbol = symbolInput.value;
+
+            // Load Stocks to Datalist
+            try {
+                const stocks = await window.api.getAllStocks();
+                if (stocks && stocks.length > 0) {
+                    const datalist = document.getElementById('stock-options');
+                    stocks.forEach(st => {
+                        const opt = document.createElement('option');
+                        opt.value = st.symbol;
+                        datalist.appendChild(opt);
+                    });
+                }
+            } catch(e) { console.error(e); }
+
+            // Load Balance
+            if (currentUser) {
+                const port = await window.api.getPortfolio(currentUser.id);
+                availBalanceEl.textContent = port.balance.toLocaleString(undefined, {minimumFractionDigits:2});
+            }
+
+            // Trading specific UI logic
+            function updateStyle() {
+                const isBuy = tradeTypeInput.value === 'BUY';
+                if(isBuy) {
+                    btnBuy.className = 'btn btn-green flex-1';
+                    btnSell.className = 'btn btn-outline flex-1 text-red';
+                    executeBtn.className = 'btn btn-green btn-block text-xl py-3';
+                } else {
+                    btnBuy.className = 'btn btn-outline flex-1 text-green';
+                    btnSell.className = 'btn btn-red flex-1';
+                    executeBtn.className = 'btn btn-red btn-block text-xl py-3';
+                }
+            }
+
+            btnBuy.addEventListener('click', () => { tradeTypeInput.value = 'BUY'; updateStyle(); calcTotal(); });
+            btnSell.addEventListener('click', () => { tradeTypeInput.value = 'SELL'; updateStyle(); calcTotal(); });
+
+            function calcTotal() {
+                const qty = parseFloat(qtyInput.value) || 0;
+                totalCostEl.textContent = (qty * currentPrice).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+            }
+
+            qtyInput.addEventListener('input', calcTotal);
+
+            // Live Price Loop
+            setInterval(async () => {
+                const sym = symbolInput.value;
+                if(!sym) return;
+                try {
+                    const price = await window.api.getStockPrice(sym);
+                    currentPrice = price;
+                    livePriceEl.textContent = price.toLocaleString(undefined, {minimumFractionDigits:2});
+                    
+                    // Simple mock price change visual
+                    const priceChangeEl = document.getElementById('price-change');
+                    const change = (Math.random() * 2 - 1).toFixed(2);
+                    priceChangeEl.textContent = (change > 0 ? '+' : '') + change + '%';
+                    priceChangeEl.className = change > 0 ? 'badge badge-green text-sm' : 'badge badge-red text-sm';
+                    
+                    calcTotal();
+                } catch(e) {}
+            }, 1000);
+
+            // Execute Trade
+            executeBtn.addEventListener('click', async () => {
+                const sym = symbolInput.value.toUpperCase();
+                const qty = parseFloat(qtyInput.value);
+                const type = tradeTypeInput.value;
+                
+                alertBox.style.display = 'none';
+                executeBtn.disabled = true;
+
+                try {
+                    const res = await window.api.executeTrade(currentUser.id, sym, type, qty, currentPrice);
+                    if (res.balance !== undefined) {
+                        availBalanceEl.textContent = res.balance.toLocaleString(undefined, {minimumFractionDigits:2});
+                    } else {
+                        const totalCost = qty * currentPrice;
+                        const currentBal = parseFloat(availBalanceEl.textContent.replace(/,/g, ''));
+                        const newBal = type === 'BUY' ? currentBal - totalCost : currentBal + totalCost;
+                        availBalanceEl.textContent = newBal.toLocaleString(undefined, {minimumFractionDigits:2});
+                    }
+                    
+                    alertBox.textContent = `Successfully ${type === 'BUY' ? 'bought' : 'sold'} ${qty} ${sym}!`;
+                    alertBox.className = 'alert alert-success mt-4';
+                    alertBox.style.display = 'block';
+                } catch(error) {
+                    alertBox.textContent = error.message;
+                    alertBox.className = 'alert alert-error mt-4';
+                    alertBox.style.display = 'block';
+                } finally {
+                    executeBtn.disabled = false;
+                    setTimeout(() => alertBox.style.display = 'none', 3000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

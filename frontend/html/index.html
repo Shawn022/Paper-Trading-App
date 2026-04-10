@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Paper Trading</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar fade-in">
+            <div class="sidebar-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zm-4-4h-2v-4h-2v4H9v-6h2V9h2v4h2v4z"/></svg>
+                PaperTrade
+            </div>
+            <nav class="nav-links mt-4">
+                <a href="index.html" class="nav-link active">Dashboard</a>
+                <a href="graph.html" class="nav-link">Graphs</a>
+                <a href="trading.html" class="nav-link">Trading</a>
+                <a href="history.html" class="nav-link">History</a>
+                <a href="learn.html" class="nav-link">Learn</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
+                    <span class="user-name-display font-bold">User</span>
+                    <div class="avatar user-avatar-display">U</div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area fade-in">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-2xl">Overview</h1>
+                </div>
+
+                <!-- Grid Summary -->
+                <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="card">
+                        <div class="text-muted text-sm font-bold uppercase">Total Portfolio Value</div>
+                        <div class="text-3xl font-bold mt-2">₹<span id="portfolio-value">0.00</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="text-muted text-sm font-bold uppercase">Cash Balance</div>
+                        <div class="text-3xl font-bold mt-2">₹<span id="portfolio-balance">0.00</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="text-muted text-sm font-bold uppercase">Total Profit / Loss</div>
+                        <div class="text-3xl font-bold mt-2"><span id="portfolio-pl">₹0.00</span></div>
+                    </div>
+                </div>
+
+                <!-- Holdings Area -->
+                <div class="card w-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl">Current Stock Holdings</h2>
+                    </div>
+                    
+                    <div id="holdings-list" class="flex flex-col gap-4">
+                        <div class="text-center py-8 text-muted" id="holdings-loading">Loading your portfolio...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="../api.js"></script>
+    <script src="../auth.js"></script>
+    <script src="../dashboard.js"></script>
+</body>
+</html>

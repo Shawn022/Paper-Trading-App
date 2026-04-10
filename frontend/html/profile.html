@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Paper Trading</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar fade-in">
+            <div class="sidebar-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zm-4-4h-2v-4h-2v4H9v-6h2V9h2v4h2v4z"/></svg>
+                PaperTrade
+            </div>
+            <nav class="nav-links mt-4">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="graph.html" class="nav-link">Graphs</a>
+                <a href="trading.html" class="nav-link">Trading</a>
+                <a href="history.html" class="nav-link">History</a>
+                <a href="learn.html" class="nav-link">Learn</a>
+                <a href="profile.html" class="nav-link active">Profile</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
+                    <span class="user-name-display font-bold">User</span>
+                    <div class="avatar user-avatar-display">U</div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area fade-in">
+                <h1 class="text-2xl mb-8">User Profile</h1>
+
+                <div class="flex gap-8">
+                    <!-- Left: Profile Widget -->
+                    <div class="card flex flex-col items-center gap-4" style="width: 300px;">
+                        <div class="avatar user-avatar-display" style="width: 100px; height: 100px; font-size: 3rem;">U</div>
+                        <h2 class="text-xl font-bold user-name-display">User Name</h2>
+                        <div class="text-muted" id="user-email-display">user@example.com</div>
+                        <button class="btn btn-outline w-full mt-4 text-red border-red" id="logout-btn-2">Sign Out</button>
+                    </div>
+
+                    <!-- Right: Info -->
+                    <div class="flex-1 flex flex-col gap-4">
+                        <div class="card">
+                            <h3 class="text-lg font-bold mb-4">Account Information</h3>
+                            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <div class="text-muted text-sm uppercase">Total Balance</div>
+                                    <div class="text-2xl font-bold mt-1 text-green">₹<span id="profile-balance">0.00</span></div>
+                                </div>
+                                <div>
+                                    <div class="text-muted text-sm uppercase">Total Trades Executed</div>
+                                    <div class="text-2xl font-bold mt-1" id="profile-trades">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="text-lg font-bold mb-4">Active Holdings</h3>
+                            <div id="holdings-list" class="flex flex-col gap-4 text-muted">
+                                <!-- Populated dynamically -->
+                                Loading holdings...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="../api.js"></script>
+    <script src="../auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const emailDisplay = document.getElementById('user-email-display');
+            const balanceDisplay = document.getElementById('profile-balance');
+            const tradesDisplay = document.getElementById('profile-trades');
+            const holdingsList = document.getElementById('holdings-list');
+            const logoutBtn2 = document.getElementById('logout-btn-2');
+
+            if (currentUser) {
+                emailDisplay.textContent = currentUser.email;
+
+                try {
+                    const [port, history] = await Promise.all([
+                        window.api.getPortfolio(currentUser.id),
+                        window.api.getHistory(currentUser.id)
+                    ]);
+
+                    balanceDisplay.textContent = port.balance.toLocaleString(undefined, {minimumFractionDigits:2});
+                    tradesDisplay.textContent = history.length;
+
+                    holdingsList.innerHTML = '';
+                    const holdingsKeys = Object.keys(port.holdings);
+                    
+                    if(holdingsKeys.length === 0) {
+                        holdingsList.innerHTML = '<div class="text-center py-8">No active holdings found.</div>';
+                    } else {
+                        holdingsKeys.forEach(sym => {
+                            const qty = port.holdings[sym];
+                            const row = document.createElement('div');
+                            row.className = 'flex justify-between items-center p-4 rounded-lg';
+                            row.style.backgroundColor = 'var(--bg-surface-hover)';
+                            row.innerHTML = `
+                                <a href="index.html?symbol=${sym}" class="font-bold text-xl text-primary" style="text-decoration: underline; text-underline-offset: 4px;" title="View ${sym} Chart">${sym}</a>
+                                <div class="text-lg">${qty.toLocaleString(undefined, {minimumFractionDigits: 2})} Shares</div>
+                            `;
+                            holdingsList.appendChild(row);
+                        });
+                    }
+
+                } catch (e) {
+                    console.error('Failed to load profile data', e);
+                }
+            }
+
+            logoutBtn2.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('paper_user');
+                window.location.href = 'login.html';
+            });
+        });
+    </script>
+</body>
+</html>
