@@ -1,6 +1,4 @@
-package com.papertrading.backend.DAA;
-
-import com.papertrading.backend.dto.stock.StockPriceResponse;
+package com.papertrading.backend.customs;
 
 import java.util.ArrayList;
 import java.util.List;

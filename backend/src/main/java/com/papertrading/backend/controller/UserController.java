@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.papertrading.backend.user.User;
 import com.papertrading.backend.service.UserService;
 import com.papertrading.backend.dto.user.*;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -25,6 +26,11 @@ public class UserController {
     @PostMapping("/login")
     User loginUser(@RequestBody LoginRequest request){
         return userService.loginUser(request);
+    }
+
+    @GetMapping("/{userId}")
+    User getUser(@PathVariable Long userId){
+        return  userService.getUser(userId);
     }
 
 }

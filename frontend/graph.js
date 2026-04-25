@@ -1,13 +1,9 @@
-/**
- * Graph Logic - Handles Chart.js initialization and live updates
- */
 
 document.addEventListener("DOMContentLoaded", async () => {
     const liveIndicator = document.getElementById('live-indicator');
     const tilesContainer = document.getElementById('stock-tiles-container');
     const chartTitle = document.getElementById('chart-title');
     
-    // Populate Stocks
     try {
         const stocks = await window.api.getAllStocks();
         if (stocks && stocks.length > 0) {
@@ -36,10 +32,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Failed to load stocks into tiles", err);
     }
 
-    // Initialize Chart.js
+
     const ctx = document.getElementById('mainChart').getContext('2d');
     
-    // Gradient fill for line chart
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, 'rgba(246, 70, 93, 0.2)');
     gradient.addColorStop(1, 'rgba(246, 70, 93, 0)');
@@ -117,32 +112,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         mainChart.data.datasets[0].data = [];
         mainChart.update('none');
         
-        // Visual updates
+
         const displayLabel = symbol.replace('.NS', '');
         chartTitle.textContent = `Market Activity (${displayLabel})`;
         liveIndicator.textContent = '60-DAY';
         liveIndicator.style.opacity = '1';
         
-        // Fetch history data
+
         const history = await window.api.getStockHistory(symbol);
         
-        if (requestId !== currentRequestId) return; // Prevent async race conditions
+        if (requestId !== currentRequestId) return; 
         
-        // Process history data - handles multiple response formats
         let prices = [];
         if (history) {
-            // If history is an array directly
             if (Array.isArray(history)) {
                 prices = history.map(item => {
-                    // Handle array of objects with price property
                     return typeof item === 'object' && item.price ? item.price : item;
                 });
             }
-            // If history is an object with priceHistory property (actual API response)
             else if (history.priceHistory && Array.isArray(history.priceHistory)) {
                 prices = history.priceHistory;
             }
-            // If history is an object with prices property
             else if (history.prices && Array.isArray(history.prices)) {
                 prices = history.prices;
             }
@@ -155,7 +145,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             liveIndicator.style.opacity = '1';
         } else {
-            // Fallback to bootstrap believable historical mocked data if history api fails
             const basePrice = await window.api.getStockPrice(symbol);
             liveIndicator.style.opacity = '1';
             
@@ -171,7 +160,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         mainChart.update();
 
-        // No live updates - keeping static 60-day historical data
     }
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -187,7 +175,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
     
-    // Set active tile visually
     const initialTile = tilesContainer.querySelector(`.stock-tile[data-value="${initialSymbol}"]`);
     if (initialTile) {
         initialTile.classList.add('active');
@@ -207,6 +194,5 @@ document.addEventListener("DOMContentLoaded", async () => {
         tilesContainer.appendChild(newTile);
     }
 
-    // Initial load
     bootstrapChart(initialSymbol);
 });

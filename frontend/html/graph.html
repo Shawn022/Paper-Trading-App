@@ -25,9 +25,7 @@
             </nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Topbar -->
             <header class="topbar">
                 <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
                     <span class="user-name-display font-bold">User</span>
@@ -35,24 +33,20 @@
                 </div>
             </header>
 
-            <!-- Content Area -->
             <div class="content-area fade-in">
                 <div class="flex items-center justify-between mb-4">
                     <h1 class="text-2xl">Stock Graphs</h1>
                 </div>
 
-                <!-- Chart Area -->
                 <div class="card w-full" style="height: 480px; position: relative;">
                     <div class="flex justify-between items-center mb-4">
                         <div class="flex items-center gap-4">
                             <h2 class="text-xl" id="chart-title">Market Activity</h2>
                             <div id="stock-tiles-container" class="stock-tiles-container">
-                                <!-- Tiles rendered by JS -->
                             </div>
                         </div>
                         <div class="badge badge-green" id="live-indicator">LIVE</div>
                     </div>
-                    <!-- Chart.js Canvas -->
                     <div style="height: 380px; width: 100%;">
                         <canvas id="mainChart"></canvas>
                     </div>
@@ -61,10 +55,8 @@
         </main>
     </div>
 
-    <!-- Core Scripts -->
     <script src="../api.js"></script>
     <script src="../auth.js"></script>
-    <!-- Chart JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../graph.js"></script>
 </body>

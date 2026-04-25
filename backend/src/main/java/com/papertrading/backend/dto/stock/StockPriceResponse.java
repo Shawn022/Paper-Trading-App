@@ -1,6 +1,7 @@
 package com.papertrading.backend.dto.stock;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class StockPriceResponse {
 
@@ -8,8 +9,9 @@ public class StockPriceResponse {
     private BigDecimal price;
     private BigDecimal dayHigh;
     private BigDecimal dayLow;
-    private long volume;
+    private Long volume;
     private BigDecimal previousClose;
+    private List<BigDecimal> priceHistory;
 
     public String getSymbol() {
         return symbol;
@@ -57,6 +59,19 @@ public class StockPriceResponse {
 
     public void setPreviousClose(BigDecimal previousClose) {
         this.previousClose = previousClose;
+    }
+
+    public void setPriceHistory(List<BigDecimal> priceHistory){ this.priceHistory = priceHistory; }
+
+    public List<BigDecimal> getPriceHistory(){ return priceHistory; }
+
+    public void display(){
+        System.out.print("Symbol: " + symbol);
+        System.out.print("Symbol: " + price);
+        System.out.print("Symbol: " + dayHigh);
+        System.out.print("Symbol: " + dayLow);
+        System.out.print("Symbol: " + volume);
+        System.out.print("Symbol: " + symbol);
     }
 
 

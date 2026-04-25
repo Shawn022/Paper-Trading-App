@@ -1,4 +1,4 @@
-package com.papertrading.backend.DAA;
+package com.papertrading.backend.customs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +45,10 @@ public class MaxHeap {
             index = largest;
         }
     }
+    public void push(StockScore value) {
+        heap.add(value);
+        heapifyUp(heap.size() - 1);
+    }
     public StockScore pop() {
         if (heap.isEmpty()) return null;
 
@@ -58,11 +62,7 @@ public class MaxHeap {
 
         return root;
     }
-    private void swap(int i, int j) {
-        StockScore temp = heap.get(i);
-        heap.set(i, heap.get(j));
-        heap.set(j, temp);
-    }
+
     public int size() {
         return heap.size();
     }
@@ -70,5 +70,11 @@ public class MaxHeap {
     public StockScore top() {
         if (heap.isEmpty()) return null;
         return heap.get(0);
+    }
+
+    private void swap(int i, int j) {
+        StockScore temp = heap.get(i);
+        heap.set(i, heap.get(j));
+        heap.set(j, temp);
     }
 }

@@ -4,14 +4,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const plEl = document.getElementById('portfolio-pl');
     const holdingsList = document.getElementById('holdings-list');
     
-    // Fetch Portfolio
     if (currentUser) {
         try {
             const portfolio = await window.api.getPortfolio(currentUser.id);
             const cashBalance = portfolio.balance;
             balanceEl.textContent = cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             
-            // Generate holdings list and compute total value
             const holdingsMap = portfolio.holdings || {};
             const symbols = Object.keys(holdingsMap);
             
@@ -32,7 +30,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const holdingTotal = qty * livePrice;
                 stocksValue += holdingTotal;
 
-                // Create row UI
                 const row = document.createElement('div');
                 row.className = 'flex justify-between items-center p-4 rounded-lg';
                 row.style.backgroundColor = 'var(--bg-surface-hover)';
@@ -65,7 +62,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             else plEl.className = 'text-3xl font-bold mt-2 text-muted';
 
         } catch (err) {
-            // Ignore for clean console, UI gracefully handles missing data if backend completely down
             holdingsList.innerHTML = '<div class="text-center py-8 text-red">Error loading portfolio</div>';
         }
     }

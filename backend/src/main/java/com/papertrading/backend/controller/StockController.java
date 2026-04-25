@@ -33,4 +33,15 @@ public class StockController {
         return stock.getPrice();
     }
 
+    @GetMapping("/{symbol}/history")
+    public StockPriceResponse getStockHistory(@PathVariable String symbol){
+        StockPriceResponse stock = stockCache.getStock((symbol));
+        if(stock ==  null){
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND
+            );
+        }
+        return stock;
+    }
+
 }

@@ -9,7 +9,6 @@
 <body>
 
     <div class="app-container">
-        <!-- Sidebar -->
         <aside class="sidebar fade-in">
             <div class="sidebar-logo">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zm-4-4h-2v-4h-2v4H9v-6h2V9h2v4h2v4z"/></svg>
@@ -25,9 +24,7 @@
             </nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Topbar -->
             <header class="topbar">
                 <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
                     <span class="user-name-display font-bold">User</span>
@@ -35,7 +32,6 @@
                 </div>
             </header>
 
-            <!-- Content Area -->
             <div class="content-area fade-in">
                 <h1 class="text-2xl mb-8">Trade History</h1>
 
@@ -53,7 +49,6 @@
                                 </tr>
                             </thead>
                             <tbody id="history-tbody">
-                                <!-- Populated dynamically -->
                                 <tr>
                                     <td colspan="6" class="text-center text-muted py-8">Loading history...</td>
                                 </tr>
@@ -65,7 +60,6 @@
         </main>
     </div>
 
-    <!-- Core Scripts -->
     <script src="../api.js"></script>
     <script src="../auth.js"></script>
     <script>
