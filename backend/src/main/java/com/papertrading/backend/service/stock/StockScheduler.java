@@ -1,6 +1,7 @@
 package com.papertrading.backend.service.stock;
 
 import com.papertrading.backend.dto.stock.Candle;
+import com.papertrading.backend.utils.StockLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,18 +19,8 @@ import java.util.List;
 
 @Service
 public class StockScheduler {
-    private final List<String> stocks = List.of(
-            "HDFCBANK.NS","ICICIBANK.NS","SBIN.NS","AXISBANK.NS","KOTAKBANK.NS",
-            "BAJFINANCE.NS","BAJAJFINSV.NS","HDFCLIFE.NS","SBILIFE.NS","INDUSINDBK.NS",
-            "TCS.NS","INFY.NS","HCLTECH.NS","WIPRO.NS","TECHM.NS",
-            "RELIANCE.NS","ONGC.NS","NTPC.NS","POWERGRID.NS","BPCL.NS","COALINDIA.NS",
-            "HINDUNILVR.NS","ITC.NS","NESTLEIND.NS","BRITANNIA.NS","TATACONSUM.NS",
-            "MARUTI.NS","M&M.NS","EICHERMOT.NS","BAJAJ-AUTO.NS","HEROMOTOCO.NS",
-            "SUNPHARMA.NS","DRREDDY.NS","CIPLA.NS","DIVISLAB.NS","APOLLOHOSP.NS",
-            "TATASTEEL.NS","JSWSTEEL.NS","HINDALCO.NS","ULTRACEMCO.NS","GRASIM.NS",
-            "ADANIENT.NS","ADANIPORTS.NS","LT.NS",
-            "TITAN.NS","TRENT.NS","ASIANPAINT.NS","SBICARD.NS"
-    );
+    @Autowired
+    private StockLoader stockLoader;
 
     @Autowired
     private StockCacheService stockCacheService;
@@ -42,7 +33,7 @@ public class StockScheduler {
     @Scheduled(fixedRate = 60000)
     public void updateIntraday() {
 
-        for (String symbol : stocks) {
+        for (String symbol : stockLoader.getSymbols()) {
             List<Candle> candles = fetchIntraday(symbol);
 
             stockCacheService.put(
@@ -59,7 +50,7 @@ public class StockScheduler {
     @Scheduled(fixedRate = 6 * 60 * 60 * 1000)
     public void updateHistory() {
 
-        for (String symbol : stocks) {
+        for (String symbol : stockLoader.getSymbols()) {
             List<Candle> candles = fetchHistory(symbol);
 
             stockCacheService.put(

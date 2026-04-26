@@ -16,5 +16,13 @@ public class SuggestionController {
     @Autowired
     private SuggestionService suggestionService;
 
+    @GetMapping("/top-intraday")
+    private List<StockScore> getTopIntraday(){
+        return suggestionService.getTopStocksIntraday("intraday");
+    }
 
+    @GetMapping("/top-historical")
+    private List<StockScore> getTopHistorical(){
+        return suggestionService.getTopStocksIntraday("historical");
+    }
 }
