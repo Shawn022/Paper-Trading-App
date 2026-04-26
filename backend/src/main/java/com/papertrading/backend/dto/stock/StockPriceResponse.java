@@ -3,15 +3,28 @@ package com.papertrading.backend.dto.stock;
 import java.math.BigDecimal;
 import java.util.List;
 
+
 public class StockPriceResponse {
 
     private String symbol;
+
+    //current price info
     private BigDecimal price;
     private BigDecimal dayHigh;
     private BigDecimal dayLow;
-    private Long volume;
     private BigDecimal previousClose;
-    private List<BigDecimal> priceHistory;
+    private Long volume;
+
+    //change from last price
+    private BigDecimal change;
+    private BigDecimal changePercent;
+    private Long lastUpdated;
+
+    //historical prices
+    private List<Candle> intradayCandles;
+    private List<Candle> historicalCandles;
+
+    // Getters and Setters
 
     public String getSymbol() {
         return symbol;
@@ -45,14 +58,6 @@ public class StockPriceResponse {
         this.dayLow = dayLow;
     }
 
-    public long getVolume() {
-        return volume;
-    }
-
-    public void setVolume(long volume) {
-        this.volume = volume;
-    }
-
     public BigDecimal getPreviousClose() {
         return previousClose;
     }
@@ -61,18 +66,51 @@ public class StockPriceResponse {
         this.previousClose = previousClose;
     }
 
-    public void setPriceHistory(List<BigDecimal> priceHistory){ this.priceHistory = priceHistory; }
-
-    public List<BigDecimal> getPriceHistory(){ return priceHistory; }
-
-    public void display(){
-        System.out.print("Symbol: " + symbol);
-        System.out.print("Symbol: " + price);
-        System.out.print("Symbol: " + dayHigh);
-        System.out.print("Symbol: " + dayLow);
-        System.out.print("Symbol: " + volume);
-        System.out.print("Symbol: " + symbol);
+    public Long getVolume() {
+        return volume;
     }
 
+    public void setVolume(Long volume) {
+        this.volume = volume;
+    }
 
+    public BigDecimal getChange() {
+        return change;
+    }
+
+    public void setChange(BigDecimal change) {
+        this.change = change;
+    }
+
+    public BigDecimal getChangePercent() {
+        return changePercent;
+    }
+
+    public void setChangePercent(BigDecimal changePercent) {
+        this.changePercent = changePercent;
+    }
+
+    public Long getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Long lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
+    public List<Candle> getIntradayCandles() {
+        return intradayCandles;
+    }
+
+    public void setIntradayCandles(List<Candle> intradayCandles) {
+        this.intradayCandles = intradayCandles;
+    }
+
+    public List<Candle> getHistoricalCandles() {
+        return historicalCandles;
+    }
+
+    public void setHistoricalCandles(List<Candle> historicalCandles) {
+        this.historicalCandles = historicalCandles;
+    }
 }

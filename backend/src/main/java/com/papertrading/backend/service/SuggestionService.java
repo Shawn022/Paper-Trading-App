@@ -1,7 +1,7 @@
 package com.papertrading.backend.service;
 
 import com.papertrading.backend.dto.stock.StockPriceResponse;
-import com.papertrading.backend.service.stock.StockCache;
+import com.papertrading.backend.service.stock.StockCacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.papertrading.backend.customs.*;
@@ -12,10 +12,11 @@ import java.util.List;
 @Service
 public class SuggestionService {
      @Autowired
-     private StockCache stockCache;
+     private StockCacheService stockCacheService;
 
+     /*
      public List<StockScore> getTopStocks(){
-          List<StockPriceResponse> allStocks = stockCache.getAllStocks();
+          List<StockPriceResponse> allStocks = stockCacheService.getAllStocks();
           List<StockScore> res = new ArrayList<>();
 
           MaxHeap heap =new MaxHeap();
@@ -28,5 +29,5 @@ public class SuggestionService {
                i++;
           }
           return res;
-     };
+     };*/
 }

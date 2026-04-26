@@ -1,6 +1,6 @@
 package com.papertrading.backend.service;
 
-import com.papertrading.backend.dto.stock.StockPriceResponse;
+import com.papertrading.backend.service.stock.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +18,9 @@ import com.papertrading.backend.portfolio.Portfolio;
 import com.papertrading.backend.user.UserRepository;
 import com.papertrading.backend.trade.TradeRepository;
 import com.papertrading.backend.portfolio.PortfolioRepository;
-import com.papertrading.backend.service.stock.StockCache;
 
 import com.papertrading.backend.dto.trade.*;
+import com.papertrading.backend.service.stock.StockService;
 
 
 @Service
@@ -36,7 +36,7 @@ public class TradeService {
     private PortfolioRepository portfolioRepository;
 
     @Autowired
-    private StockCache stockCache;
+    private StockService stockService;
 
     public List<GetTradeResponse> getAllTrades(Long userId){
         User user = userRepository.findById(userId)
@@ -53,7 +53,7 @@ public class TradeService {
                         HttpStatus.NOT_FOUND,
                         "User not found"
                 ));
-        BigDecimal price = stockCache.getStock( request.getSymbol() ).getPrice();
+        BigDecimal price = stockService.getStock( request.getSymbol() ).getPrice();
         BigDecimal totalCost = request.getQuantity().multiply(price) ;
 
         if (user.getBalance().compareTo(totalCost) < 0 ) {
@@ -113,7 +113,7 @@ public class TradeService {
             );
         }
 
-        BigDecimal price = stockCache.getStock( request.getSymbol() ).getPrice();
+        BigDecimal price = stockService.getStock( request.getSymbol() ).getPrice();
         BigDecimal total = request.getQuantity().multiply(price);
 
         user.setBalance(user.getBalance().add(total) );

@@ -16,8 +16,5 @@ public class SuggestionController {
     @Autowired
     private SuggestionService suggestionService;
 
-    @GetMapping("/top-five")
-    public List<StockScore> getTopFive(){
-        return suggestionService.getTopStocks();
-    }
+
 }
