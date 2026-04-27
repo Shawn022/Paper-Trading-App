@@ -64,7 +64,7 @@ public class StockScore {
 
     public String getSymbol(){return symbol;}
     public double getRiskScore(){return riskScore;}
-    public double getTrendScore(){return riskScore;}
+    public double getTrendScore(){return trendScore;}
     public double getWeightedScore(){return weightedScore;}
 
 }

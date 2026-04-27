@@ -1,11 +1,11 @@
 package com.papertrading.backend.service;
 
 import com.papertrading.backend.dto.stock.StockPriceResponse;
-import com.papertrading.backend.service.stock.StockCacheService;
 import com.papertrading.backend.service.stock.StockService;
 import com.papertrading.backend.utils.StockLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.papertrading.backend.customs.*;
 
 import java.math.BigDecimal;
@@ -21,7 +21,7 @@ public class SuggestionService {
      private StockLoader stockLoader;
 
 
-     public List<StockScore> getTopStocksIntraday(String type){
+     public List<StockScore> getTopStocks(String type){
           List<String> allStocks = stockLoader.getSymbols();
           List<StockScore> res = new ArrayList<>();
 
@@ -43,4 +43,8 @@ public class SuggestionService {
           }
           return res;
      };
+
+     public BestBuySell getBestBuySellTiming(List<Double> arr, int k){
+          return new BestBuySell(arr,k);
+     }
 }

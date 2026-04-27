@@ -14,6 +14,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,10 +96,22 @@ public class StockScheduler {
             Candle c = new Candle();
 
             c.setTimestamp(timestamps.get(i).asLong());
-            c.setOpen(new BigDecimal(opens.get(i).asText()));
-            c.setHigh(new BigDecimal(highs.get(i).asText()));
-            c.setLow(new BigDecimal(lows.get(i).asText()));
-            c.setClose(new BigDecimal(closes.get(i).asText()));
+            c.setOpen(
+                    new BigDecimal(opens.get(i).asText())
+                            .setScale(2, RoundingMode.HALF_UP)
+            );
+            c.setHigh(
+                    new BigDecimal(highs.get(i).asText())
+                            .setScale(2, RoundingMode.HALF_UP)
+            );
+            c.setLow(
+                    new BigDecimal(lows.get(i).asText())
+                            .setScale(2, RoundingMode.HALF_UP)
+            );
+            c.setClose(
+                    new BigDecimal(closes.get(i).asText())
+                            .setScale(2, RoundingMode.HALF_UP)
+            );
             c.setVolume(volumes.get(i).asLong());
 
             candles.add(c);
