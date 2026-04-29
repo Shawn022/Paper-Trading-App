@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Paper Trading</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar fade-in">
+            <div class="sidebar-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zm-4-4h-2v-4h-2v4H9v-6h2V9h2v4h2v4z"/></svg>
+                PaperTrade
+            </div>
+            <nav class="nav-links mt-4">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="graph.html" class="nav-link">Graphs</a>
+                <a href="trading.html" class="nav-link">Trading</a>
+                <a href="history.html" class="nav-link">History</a>
+                <a href="learn.html" class="nav-link">Learn</a>
+                <a href="analytics.html" class="nav-link active">Analytics</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
+                    <span class="user-name-display font-bold">User</span>
+                    <div class="avatar user-avatar-display">U</div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area fade-in">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-2xl">Market Analytics & Suggestions</h1>
+                </div>
+
+                <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    
+                    <!-- Top Intraday -->
+                    <div class="card w-full">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl">Top Intraday Performers</h2>
+                            <div class="badge badge-green">LIVE</div>
+                        </div>
+                        <div id="intraday-suggestions" class="flex flex-col gap-4">
+                            <div class="text-center py-8 text-muted">Loading intraday analytics...</div>
+                        </div>
+                    </div>
+
+                    <!-- Top Historical -->
+                    <div class="card w-full">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl">Top Performers (Last 90 Days)</h2>
+                            <div class="badge badge-blue">HISTORICAL</div>
+                        </div>
+                        <div id="historical-suggestions" class="flex flex-col gap-4">
+                            <div class="text-center py-8 text-muted">Loading historical analytics...</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="../api.js"></script>
+    <script src="../auth.js"></script>
+    <script src="../analytics.js"></script>
+</body>
+</html>

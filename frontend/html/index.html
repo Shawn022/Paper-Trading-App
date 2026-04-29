@@ -21,11 +21,14 @@
                 <a href="trading.html" class="nav-link">Trading</a>
                 <a href="history.html" class="nav-link">History</a>
                 <a href="learn.html" class="nav-link">Learn</a>
+                <a href="analytics.html" class="nav-link">Analytics</a>
                 <a href="profile.html" class="nav-link">Profile</a>
             </nav>
         </aside>
 
+        <!-- Main Content -->
         <main class="main-content">
+            <!-- Topbar -->
             <header class="topbar">
                 <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
                     <span class="user-name-display font-bold">User</span>
@@ -33,11 +36,13 @@
                 </div>
             </header>
 
+            <!-- Content Area -->
             <div class="content-area fade-in">
                 <div class="flex items-center justify-between mb-4">
                     <h1 class="text-2xl">Overview</h1>
                 </div>
 
+                <!-- Grid Summary -->
                 <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                     <div class="card">
                         <div class="text-muted text-sm font-bold uppercase">Total Portfolio Value</div>
@@ -53,19 +58,72 @@
                     </div>
                 </div>
 
+                <!-- Holdings Area -->
                 <div class="card w-full">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl">Current Stock Holdings</h2>
                     </div>
-                    
                     <div id="holdings-list" class="flex flex-col gap-4">
                         <div class="text-center py-8 text-muted" id="holdings-loading">Loading your portfolio...</div>
                     </div>
+                </div>
+
+                <!-- Top 10 Performers -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;">
+                    <div class="card" style="padding:1.25rem;">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                            <div style="width:10px;height:10px;border-radius:50%;background:#2ebd85;box-shadow:0 0 8px #2ebd85;"></div>
+                            <h2 style="font-size:1.05rem;font-weight:700;margin:0;">&#9650; Top 5 Intraday</h2>
+                            <a href="analytics.html" style="margin-left:auto;font-size:0.75rem;color:#848E9C;text-decoration:underline;">View All</a>
+                        </div>
+                        <div id="dash-intraday-top"></div>
+                    </div>
+                    <div class="card" style="padding:1.25rem;">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                            <div style="width:10px;height:10px;border-radius:50%;background:#818CF8;box-shadow:0 0 8px #818CF8;"></div>
+                            <h2 style="font-size:1.05rem;font-weight:700;margin:0;">&#128200; Top 5 — 90 Days</h2>
+                            <a href="analytics.html" style="margin-left:auto;font-size:0.75rem;color:#848E9C;text-decoration:underline;">View All</a>
+                        </div>
+                        <div id="dash-historical-top"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sell Modal Popup -->
+            <div id="sell-modal" class="modal-backdrop">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="text-xl">Sell <span id="modal-sell-symbol"></span></h2>
+                        <div class="modal-close" id="close-sell-modal">&times;</div>
+                    </div>
+                    
+                    <div id="sell-alert-box" class="alert mt-2" style="display: none;"></div>
+
+                    <div class="text-center mb-6">
+                        <div class="text-muted text-sm font-bold uppercase mb-2">Live Price</div>
+                        <div class="text-3xl font-bold text-red">
+                            ₹<span id="sell-live-price">--.--</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-6">
+                        <input type="number" id="sell-quantity" class="form-input text-right" placeholder="0.0" min="0.01" step="0.01" value="1">
+                        <label for="sell-quantity" class="form-label">Quantity</label>
+                        <div class="text-muted text-right text-sm mt-1">Available to sell: <span id="max-sell-qty">0</span></div>
+                    </div>
+
+                    <div class="flex justify-between items-center text-xl font-bold mb-6">
+                        <span>Estimated Value</span>
+                        <span>₹<span id="sell-total-value">0.00</span></span>
+                    </div>
+
+                    <button id="execute-sell-btn" class="btn btn-red btn-block text-xl py-3">Place Sell Order</button>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Core Scripts -->
     <script src="../api.js"></script>
     <script src="../auth.js"></script>
     <script src="../dashboard.js"></script>

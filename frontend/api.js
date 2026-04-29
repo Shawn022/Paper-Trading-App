@@ -1,6 +1,61 @@
 
 const BASE_URL = 'http://localhost:8080/api';
 
+
+window.MASTER_STOCKS = [
+    { symbol: "HDFCBANK.NS",   name: "HDFC Bank" },
+    { symbol: "ICICIBANK.NS",  name: "ICICI Bank" },
+    { symbol: "SBIN.NS",       name: "State Bank of India" },
+    { symbol: "AXISBANK.NS",   name: "Axis Bank" },
+    { symbol: "KOTAKBANK.NS",  name: "Kotak Bank" },
+    { symbol: "BAJFINANCE.NS", name: "Bajaj Finance" },
+    { symbol: "BAJAJFINSV.NS", name: "Bajaj Finserv" },
+    { symbol: "HDFCLIFE.NS",   name: "HDFC Life" },
+    { symbol: "SBILIFE.NS",    name: "SBI Life" },
+    { symbol: "INDUSINDBK.NS", name: "IndusInd Bank" },
+    { symbol: "TCS.NS",        name: "Tata Consultancy" },
+    { symbol: "INFY.NS",       name: "Infosys" },
+    { symbol: "HCLTECH.NS",    name: "HCL Tech" },
+    { symbol: "WIPRO.NS",      name: "Wipro" },
+    { symbol: "TECHM.NS",      name: "Tech Mahindra" },
+    { symbol: "BHARTIARTL.NS", name: "Bharti Airtel" },
+    { symbol: "RELIANCE.NS",   name: "Reliance Industries" },
+    { symbol: "ONGC.NS",       name: "ONGC" },
+    { symbol: "NTPC.NS",       name: "NTPC" },
+    { symbol: "POWERGRID.NS",  name: "Power Grid" },
+    { symbol: "BPCL.NS",       name: "BPCL" },
+    { symbol: "COALINDIA.NS",  name: "Coal India" },
+    { symbol: "HINDUNILVR.NS", name: "Hindustan Unilever" },
+    { symbol: "ITC.NS",        name: "ITC" },
+    { symbol: "NESTLEIND.NS",  name: "Nestle India" },
+    { symbol: "BRITANNIA.NS",  name: "Britannia" },
+    { symbol: "TATACONSUM.NS", name: "Tata Consumer" },
+    { symbol: "MARUTI.NS",     name: "Maruti Suzuki" },
+    { symbol: "M&M.NS",        name: "Mahindra & Mahindra" },
+    { symbol: "EICHERMOT.NS",  name: "Eicher Motors" },
+    { symbol: "BAJAJ-AUTO.NS", name: "Bajaj Auto" },
+    { symbol: "HEROMOTOCO.NS", name: "Hero MotoCorp" },
+    { symbol: "SUNPHARMA.NS",  name: "Sun Pharma" },
+    { symbol: "DRREDDY.NS",    name: "Dr Reddy's" },
+    { symbol: "CIPLA.NS",      name: "Cipla" },
+    { symbol: "DIVISLAB.NS",   name: "Divi's Labs" },
+    { symbol: "APOLLOHOSP.NS", name: "Apollo Hospitals" },
+    { symbol: "TATASTEEL.NS",  name: "Tata Steel" },
+    { symbol: "JSWSTEEL.NS",   name: "JSW Steel" },
+    { symbol: "HINDALCO.NS",   name: "Hindalco" },
+    { symbol: "ULTRACEMCO.NS", name: "UltraTech Cement" },
+    { symbol: "GRASIM.NS",     name: "Grasim" },
+    { symbol: "ADANIENT.NS",   name: "Adani Enterprises" },
+    { symbol: "ADANIPORTS.NS", name: "Adani Ports" },
+    { symbol: "LT.NS",         name: "L&T" },
+    { symbol: "SHRIRAMFIN.NS", name: "Shriram Finance" },
+    { symbol: "TITAN.NS",      name: "Titan" },
+    { symbol: "TRENT.NS",      name: "Trent" },
+    { symbol: "ASIANPAINT.NS", name: "Asian Paints" },
+    { symbol: "SBICARD.NS",    name: "SBI Cards" },
+    { symbol: "BEL.NS",        name: "Bharat Electronics" }
+];
+
 window.api = {
     login: async (email, password) => {
         try {
@@ -16,6 +71,7 @@ window.api = {
 
             return await response.json();
         } catch (error) {
+            
             throw new Error(error.message || 'Login failed');
         }
     },
@@ -40,12 +96,13 @@ window.api = {
 
     getPortfolio: async (userId) => {
         let holdings = {};
-        let balance = 100000.00;
+        let balance = 100000.00; 
 
         try {
-
+            
             const response = await fetch(`${BASE_URL}/user/${userId}/portfolio`).catch(() => null);
             if (response && response.status === 404) {
+               
                 return { balance, holdings };
             }
             if (response && response.ok) {
@@ -58,6 +115,7 @@ window.api = {
                 });
             }
 
+           
             const history = await window.api.getHistory(userId);
             let spent = 0;
             let earned = 0;
@@ -75,6 +133,7 @@ window.api = {
 
             return { balance, holdings };
         } catch (error) {
+            
             return { balance: balance, holdings: holdings };
         }
     },
@@ -95,11 +154,17 @@ window.api = {
         try {
             const response = await fetch(`${BASE_URL}/stock`).catch(() => null);
             if (response && response.ok) {
-                return await response.json();
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const backendSymbols = new Set(data.map(s => s.symbol));
+                    const extras = window.MASTER_STOCKS.filter(s => !backendSymbols.has(s.symbol));
+                    return [...data, ...extras];
+                }
             }
-            return [];
+            return window.MASTER_STOCKS;
         } catch (error) {
-            return [];
+            return window.MASTER_STOCKS;
         }
     },
 
@@ -158,5 +223,39 @@ window.api = {
         } catch (error) {
             return [];
         }
+    },
+
+    getTopIntraday: async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/suggestion/top-intraday`).catch(() => null);
+            if (response && response.ok) return await response.json();
+            return [];
+        } catch (error) { return []; }
+    },
+
+    getTopHistorical: async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/suggestion/top-historical`).catch(() => null);
+            if (response && response.ok) return await response.json();
+            return [];
+        } catch (error) { return []; }
+    },
+
+    
+    getBestBuySellIntraday: async (symbol, k = 1) => {
+        try {
+            const response = await fetch(`${BASE_URL}/suggestion/BestBuySell/intraday?symbol=${encodeURIComponent(symbol)}&k=${k}`).catch(() => null);
+            if (response && response.ok) return await response.json();
+            return null;
+        } catch (error) { return null; }
+    },
+
+    
+    getBestBuySellHistorical: async (symbol, k = 1) => {
+        try {
+            const response = await fetch(`${BASE_URL}/suggestion/BestBuySell/historical?symbol=${encodeURIComponent(symbol)}&k=${k}`).catch(() => null);
+            if (response && response.ok) return await response.json();
+            return null;
+        } catch (error) { return null; }
     }
 };

@@ -21,6 +21,7 @@
                 <a href="trading.html" class="nav-link active">Trading</a>
                 <a href="history.html" class="nav-link">History</a>
                 <a href="learn.html" class="nav-link">Learn</a>
+                <a href="analytics.html" class="nav-link">Analytics</a>
                 <a href="profile.html" class="nav-link">Profile</a>
             </nav>
         </aside>
@@ -37,58 +38,52 @@
 
             <!-- Content Area -->
             <div class="content-area fade-in">
-                <h1 class="text-2xl mb-8">Execute Trade</h1>
+                <div class="flex items-center justify-between mb-8">
+                    <h1 class="text-2xl">Select Stock to Buy</h1>
+                    <div class="search-container form-group" style="margin-bottom: 0;">
+                        <input type="text" id="stock-search" class="form-input" placeholder="Search a stock..." autocomplete="off">
+                        <label for="stock-search" class="form-label">Search a stock...</label>
+                    </div>
+                </div>
 
-                <div class="flex gap-8">
-                    <!-- Left: Market Data -->
-                    <div class="flex-1 flex flex-col gap-4">
-                        <div class="card w-full">
-                            <div class="form-group mb-0">
-                                <input type="text" id="symbol-search" list="stock-options" class="form-input text-xl" placeholder="Symbol (e.g. TCS.NS)" value="TCS.NS" style="text-transform: uppercase;">
-                                <datalist id="stock-options"></datalist>
-                                <label for="symbol-search" class="form-label">Search Symbol</label>
-                            </div>
-                        </div>
+                <div id="stock-tiles-large-container" class="stock-tiles-grid">
+                    <!-- Large Tiles rendered by JS -->
+                </div>
+            </div>
+            
+            <!-- Buy Modal Popup -->
+            <div id="buy-modal" class="modal-backdrop">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="text-xl">Buy <span id="modal-symbol"></span></h2>
+                        <div class="modal-close" id="close-buy-modal">&times;</div>
+                    </div>
+                    
+                    <div id="alert-box" class="alert mt-2" style="display: none;"></div>
 
-                        <div class="card w-full text-center py-8 mt-4">
-                            <div class="text-muted text-sm font-bold uppercase mb-2">Live Price</div>
-                            <div class="text-3xl font-bold flex justify-center items-center gap-2">
-                                ₹<span id="live-price">--.--</span>
-                                <span class="badge badge-green text-sm" id="price-change">+0.00%</span>
-                            </div>
+                    <div class="text-center mb-6">
+                        <div class="text-muted text-sm font-bold uppercase mb-2">Live Price</div>
+                        <div class="text-3xl font-bold text-primary">
+                            ₹<span id="live-price">--.--</span>
                         </div>
                     </div>
 
-                    <!-- Right: Trade Execution -->
-                    <div class="card" style="width: 340px;">
-                        <h2 class="text-xl mb-4">Order Entry</h2>
-                        
-                        <div id="alert-box" class="alert mt-2" style="display: none;"></div>
-
-                        <div class="flex gap-2 mb-4">
-                            <button id="btn-buy" class="btn btn-green flex-1">Buy</button>
-                            <button id="btn-sell" class="btn btn-outline flex-1 text-red" style="border-color: var(--border);">Sell</button>
-                        </div>
-                        
-                        <input type="hidden" id="trade-type" value="BUY">
-
-                        <div class="form-group mt-6">
-                            <input type="number" id="quantity" class="form-input text-right" placeholder="0.0" min="0.01" step="0.01" value="1">
-                            <label for="quantity" class="form-label">Quantity</label>
-                        </div>
-
-                        <div class="flex justify-between items-center mt-2 mb-6">
-                            <span class="text-muted">Available Balance:</span>
-                            <span class="font-bold text-green">₹<span id="avail-balance">0.00</span></span>
-                        </div>
-
-                        <div class="flex justify-between items-center text-xl font-bold mb-6">
-                            <span>Total</span>
-                            <span>₹<span id="total-cost">0.00</span></span>
-                        </div>
-
-                        <button id="execute-btn" class="btn btn-green btn-block text-xl py-3">Place Order</button>
+                    <div class="form-group mb-6">
+                        <input type="number" id="quantity" class="form-input text-right" placeholder="0.0" min="0.01" step="0.01" value="1">
+                        <label for="quantity" class="form-label">Quantity</label>
                     </div>
+
+                    <div class="flex justify-between items-center mt-2 mb-6 text-sm">
+                        <span class="text-muted">Available Balance:</span>
+                        <span class="font-bold text-green">₹<span id="avail-balance">0.00</span></span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-xl font-bold mb-6">
+                        <span>Total Cost</span>
+                        <span>₹<span id="total-cost">0.00</span></span>
+                    </div>
+
+                    <button id="execute-btn" class="btn btn-green btn-block text-xl py-3">Place Buy Order</button>
                 </div>
             </div>
         </main>
@@ -99,56 +94,28 @@
     <script src="../auth.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            const symbolInput = document.getElementById('symbol-search');
+            const tilesContainer = document.getElementById('stock-tiles-large-container');
+            const modal = document.getElementById('buy-modal');
+            const closeBtn = document.getElementById('close-buy-modal');
+            const modalSymbol = document.getElementById('modal-symbol');
             const livePriceEl = document.getElementById('live-price');
             const qtyInput = document.getElementById('quantity');
             const totalCostEl = document.getElementById('total-cost');
             const availBalanceEl = document.getElementById('avail-balance');
-            const tradeTypeInput = document.getElementById('trade-type');
-            
-            const btnBuy = document.getElementById('btn-buy');
-            const btnSell = document.getElementById('btn-sell');
             const executeBtn = document.getElementById('execute-btn');
             const alertBox = document.getElementById('alert-box');
 
             let currentPrice = 0;
-            let currentSymbol = symbolInput.value;
-
-            // Load Stocks to Datalist
-            try {
-                const stocks = await window.api.getAllStocks();
-                if (stocks && stocks.length > 0) {
-                    const datalist = document.getElementById('stock-options');
-                    stocks.forEach(st => {
-                        const opt = document.createElement('option');
-                        opt.value = st.symbol;
-                        datalist.appendChild(opt);
-                    });
-                }
-            } catch(e) { console.error(e); }
+            let activeSymbol = null;
+            let pricePollInterval = null;
 
             // Load Balance
             if (currentUser) {
-                const port = await window.api.getPortfolio(currentUser.id);
-                availBalanceEl.textContent = port.balance.toLocaleString(undefined, {minimumFractionDigits:2});
+                try {
+                    const port = await window.api.getPortfolio(currentUser.id);
+                    availBalanceEl.textContent = port.balance.toLocaleString(undefined, {minimumFractionDigits:2});
+                } catch(e){}
             }
-
-            // Trading specific UI logic
-            function updateStyle() {
-                const isBuy = tradeTypeInput.value === 'BUY';
-                if(isBuy) {
-                    btnBuy.className = 'btn btn-green flex-1';
-                    btnSell.className = 'btn btn-outline flex-1 text-red';
-                    executeBtn.className = 'btn btn-green btn-block text-xl py-3';
-                } else {
-                    btnBuy.className = 'btn btn-outline flex-1 text-green';
-                    btnSell.className = 'btn btn-red flex-1';
-                    executeBtn.className = 'btn btn-red btn-block text-xl py-3';
-                }
-            }
-
-            btnBuy.addEventListener('click', () => { tradeTypeInput.value = 'BUY'; updateStyle(); calcTotal(); });
-            btnSell.addEventListener('click', () => { tradeTypeInput.value = 'SELL'; updateStyle(); calcTotal(); });
 
             function calcTotal() {
                 const qty = parseFloat(qtyInput.value) || 0;
@@ -157,55 +124,211 @@
 
             qtyInput.addEventListener('input', calcTotal);
 
-            // Live Price Loop
-            setInterval(async () => {
-                const sym = symbolInput.value;
-                if(!sym) return;
+            let cachedStocks = [];
+
+            const searchInput = document.getElementById('stock-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    renderTiles(e.target.value.trim().toUpperCase());
+                });
+            }
+
+            // Load Stocks to Large Tiles
+            try {
+                const stocks = await window.api.getAllStocks();
+                if (stocks && stocks.length > 0) {
+                    cachedStocks = stocks;
+                } else {
+                    throw new Error("Empty stocks returned");
+                }
+            } catch(e) { 
+                console.error("Backend unavailable, using mock stocks:", e); 
+                cachedStocks = [
+                    { symbol: "AAPL.NS" }, { symbol: "TSLA.NS" },
+                    { symbol: "TCS.NS" }, { symbol: "INFY.NS" },
+                    { symbol: "RELIANCE.NS" }, { symbol: "HDFCBANK.NS" },
+                    { symbol: "AMZN.NS" }, { symbol: "MSFT.NS" },
+                    { symbol: "GOOGL.NS" }, { symbol: "META.NS" }
+                ];
+            } finally {
+                renderTiles('');
+            }
+
+            async function renderTiles(searchTerm) {
+                try {
+                    tilesContainer.innerHTML = '';
+                    
+                    // Sort and filter stocks
+                    let filtered = cachedStocks.filter(st => {
+                        const sym = (st.symbol || '').replace('.NS', '');
+                        return sym.includes(searchTerm);
+                    });
+                    
+                    // Bring those starting with search term to top
+                    if (searchTerm) {
+                        filtered.sort((a, b) => {
+                            const symA = (a.symbol || '').replace('.NS', '');
+                            const symB = (b.symbol || '').replace('.NS', '');
+                            const aStarts = symA.startsWith(searchTerm) ? -1 : 1;
+                            const bStarts = symB.startsWith(searchTerm) ? -1 : 1;
+                            if (aStarts !== bStarts) return aStarts - bStarts;
+                            return symA.localeCompare(symB);
+                        });
+                    }
+                    
+                    let index = 0;
+                    for (const st of filtered) {
+                        const sym = (st.symbol || '').replace('.NS', '');
+                        const tile = document.createElement('div');
+                        
+                        // Assign colorful classes in rotation
+                        const colorClass = `tile-color-${index % 6}`;
+                        tile.className = `stock-tile-large ${colorClass}`;
+                        
+                        if (searchTerm && sym.startsWith(searchTerm)) {
+                            tile.classList.add('highlighted-tile');
+                        }
+                        
+                        const initial = sym.charAt(0).toUpperCase();
+                        tile.innerHTML = `
+                            <div class="tile-logo">${initial}</div>
+                            <div class="symbol">${sym}</div>
+                            <div class="price" id="price-tile-${st.symbol}">₹--.--</div>
+                        `;
+                        
+                        tile.addEventListener('click', (e) => {
+                            const rect = tile.getBoundingClientRect();
+                            openBuyModal(st.symbol, rect);
+                        });
+                        
+                        tilesContainer.appendChild(tile);
+                        index++;
+                        
+                        // Fetch price for tile asynchronously
+                        if (window.api && window.api.getStockPrice) {
+                            window.api.getStockPrice(st.symbol)
+                                .then(price => {
+                                    const priceEl = document.getElementById(`price-tile-${st.symbol}`);
+                                    if(priceEl) priceEl.textContent = '₹' + price.toLocaleString(undefined, {minimumFractionDigits:2});
+                                })
+                                .catch(e => {
+                                    // Fallback mock price if backend offline
+                                    const priceEl = document.getElementById(`price-tile-${st.symbol}`);
+                                    if(priceEl) {
+                                        const mockPrice = Math.random() * 500 + 50;
+                                        priceEl.textContent = '₹' + mockPrice.toLocaleString(undefined, {minimumFractionDigits:2});
+                                    }
+                                });
+                        } else {
+                            // API entirely missing
+                            const priceEl = document.getElementById(`price-tile-${st.symbol}`);
+                            if(priceEl) {
+                                const mockPrice = Math.random() * 500 + 50;
+                                priceEl.textContent = '₹' + mockPrice.toLocaleString(undefined, {minimumFractionDigits:2});
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error in renderTiles:", err);
+                }
+            }
+
+            function openBuyModal(symbol, sourceRect) {
+                activeSymbol = symbol;
+                modalSymbol.textContent = symbol;
+                qtyInput.value = 1;
+                livePriceEl.textContent = '--.--';
+                totalCostEl.textContent = '0.00';
+                currentPrice = 0;
+                alertBox.style.display = 'none';
+                
+                if (sourceRect) {
+                    const modalContent = modal.querySelector('.modal-content');
+                    // Calculate relative transform origin based on screen position
+                    // We want the modal to scale out from the center of the tile
+                    const modalRect = modalContent.getBoundingClientRect();
+                    const originX = typeof modalRect.width !== 'undefined' && modalRect.width > 0 ? (sourceRect.left + sourceRect.width/2) - (window.innerWidth / 2) + (modalRect.width / 2) : '50%';
+                    const originY = typeof modalRect.height !== 'undefined' && modalRect.height > 0 ? (sourceRect.top + sourceRect.height/2) - (window.innerHeight / 2) + (modalRect.height / 2) : '50%';
+                    
+                    // We just set CSS custom properties or pass an animation start
+                    modalContent.style.transformOrigin = `${sourceRect.left + sourceRect.width/2}px ${sourceRect.top + sourceRect.height/2}px`;
+                    
+                    // A simple and reliable way is to let the modal expand from the click source visually by adjusting transform-origin to match the screen point relative to the modal.
+                    // Actually, setting transform-origin relative to the viewport is tricky when it's centered using flexbox.
+                    // Let's rely on an absolute coordinate or fixed centering and custom animation.
+                    // Instead, let's just use CSS class 'expandIn' in style.css which will handle scale.
+                    modalContent.classList.add('expand-in-anim');
+                }
+
+                modal.classList.add('show');
+                
+                if (pricePollInterval) clearInterval(pricePollInterval);
+                
+                updateModalPrice(symbol);
+                pricePollInterval = setInterval(() => updateModalPrice(symbol), 1500);
+            }
+
+            function closeBuyModal() {
+                const modalContent = modal.querySelector('.modal-content');
+                modalContent.classList.remove('expand-in-anim');
+                modal.classList.remove('show');
+                activeSymbol = null;
+                if (pricePollInterval) clearInterval(pricePollInterval);
+            }
+
+            closeBtn.addEventListener('click', closeBuyModal);
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) closeBuyModal(); // Click outside
+            });
+
+            async function updateModalPrice(sym) {
+                if (!sym) return;
                 try {
                     const price = await window.api.getStockPrice(sym);
+                    if (activeSymbol !== sym) return;
                     currentPrice = price;
                     livePriceEl.textContent = price.toLocaleString(undefined, {minimumFractionDigits:2});
                     
-                    // Simple mock price change visual
-                    const priceChangeEl = document.getElementById('price-change');
-                    const change = (Math.random() * 2 - 1).toFixed(2);
-                    priceChangeEl.textContent = (change > 0 ? '+' : '') + change + '%';
-                    priceChangeEl.className = change > 0 ? 'badge badge-green text-sm' : 'badge badge-red text-sm';
-                    
+                    const tilePriceEl = document.getElementById(`price-tile-${sym}`);
+                    if(tilePriceEl) tilePriceEl.textContent = '₹' + price.toLocaleString(undefined, {minimumFractionDigits:2});
+
                     calcTotal();
                 } catch(e) {}
-            }, 1000);
+            }
 
-            // Execute Trade
+            // Execute Buy Trade
             executeBtn.addEventListener('click', async () => {
-                const sym = symbolInput.value.toUpperCase();
+                if (!activeSymbol) return;
                 const qty = parseFloat(qtyInput.value);
-                const type = tradeTypeInput.value;
                 
                 alertBox.style.display = 'none';
                 executeBtn.disabled = true;
 
                 try {
-                    const res = await window.api.executeTrade(currentUser.id, sym, type, qty, currentPrice);
+                    const res = await window.api.executeTrade(currentUser.id, activeSymbol, 'BUY', qty, currentPrice);
                     if (res.balance !== undefined) {
                         availBalanceEl.textContent = res.balance.toLocaleString(undefined, {minimumFractionDigits:2});
                     } else {
                         const totalCost = qty * currentPrice;
                         const currentBal = parseFloat(availBalanceEl.textContent.replace(/,/g, ''));
-                        const newBal = type === 'BUY' ? currentBal - totalCost : currentBal + totalCost;
+                        const newBal = currentBal - totalCost;
                         availBalanceEl.textContent = newBal.toLocaleString(undefined, {minimumFractionDigits:2});
                     }
                     
-                    alertBox.textContent = `Successfully ${type === 'BUY' ? 'bought' : 'sold'} ${qty} ${sym}!`;
+                    // Also dispatch an event or something, but we don't have to over-engineer.
+                    // The dashboard will fetch the latest balance.
+                    
+                    alertBox.textContent = `Successfully bought ${qty} ${activeSymbol}!`;
                     alertBox.className = 'alert alert-success mt-4';
                     alertBox.style.display = 'block';
+                    
+                    setTimeout(() => closeBuyModal(), 2000);
                 } catch(error) {
                     alertBox.textContent = error.message;
                     alertBox.className = 'alert alert-error mt-4';
                     alertBox.style.display = 'block';
                 } finally {
                     executeBtn.disabled = false;
-                    setTimeout(() => alertBox.style.display = 'none', 3000);
                 }
             });
         });

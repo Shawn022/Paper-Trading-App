@@ -5,6 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graphs - Paper Trading</title>
     <link rel="stylesheet" href="../style.css">
+    <style>
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 420px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #candleCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .chart-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #848E9C;
+            font-size: 1rem;
+            background: rgba(13,14,20,0.7);
+        }
+        /* Colorful compact tile color variants */
+        .stock-tile.tc-0 { border-color: rgba(246,70,93,0.6);  color: #F6465D; }
+        .stock-tile.tc-1 { border-color: rgba(14,203,129,0.6); color: #0ECB81; }
+        .stock-tile.tc-2 { border-color: rgba(99,102,241,0.6); color: #818CF8; }
+        .stock-tile.tc-3 { border-color: rgba(245,158,11,0.6); color: #F59E0B; }
+        .stock-tile.tc-4 { border-color: rgba(236,72,153,0.6); color: #EC4899; }
+        .stock-tile.tc-5 { border-color: rgba(14,165,233,0.6); color: #38BDF8; }
+        .stock-tile.active.tc-0 { background: rgba(246,70,93,0.15);  border-color: #F6465D; }
+        .stock-tile.active.tc-1 { background: rgba(14,203,129,0.15); border-color: #0ECB81; }
+        .stock-tile.active.tc-2 { background: rgba(99,102,241,0.15); border-color: #818CF8; }
+        .stock-tile.active.tc-3 { background: rgba(245,158,11,0.15); border-color: #F59E0B; }
+        .stock-tile.active.tc-4 { background: rgba(236,72,153,0.15); border-color: #EC4899; }
+        .stock-tile.active.tc-5 { background: rgba(14,165,233,0.15); border-color: #38BDF8; }
+        /* Search box */
+        .graph-search-wrap {
+            position: relative;
+            width: 260px;
+        }
+        .graph-search-wrap svg {
+            position: absolute;
+            left: 10px; top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #848E9C;
+        }
+        #graph-search {
+            width: 100%;
+            padding: 9px 12px 9px 34px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #EAECEF;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #graph-search:focus { border-color: rgba(14,203,129,0.5); }
+        #graph-search::placeholder { color: #848E9C; }
+        .stock-info-bar {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+        .stock-info-item { display: flex; flex-direction: column; gap: 2px; }
+        .stock-info-label { font-size: 0.7rem; color: #848E9C; text-transform: uppercase; letter-spacing: 0.06em; }
+        .stock-info-value { font-size: 1rem; font-weight: 700; }
+        .val-green { color: #2ebd85; }
+        .val-red { color: #F6465D; }
+        .tab-group {
+            display: flex;
+            background: rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+        }
+        .tab-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: transparent;
+            color: #848E9C;
+        }
+        .tab-btn.active {
+            background: rgba(46,189,133,0.2);
+            color: #2ebd85;
+        }
+        .tab-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,0.08); }
+    </style>
 </head>
 <body>
 
@@ -21,10 +123,12 @@
                 <a href="trading.html" class="nav-link">Trading</a>
                 <a href="history.html" class="nav-link">History</a>
                 <a href="learn.html" class="nav-link">Learn</a>
+                <a href="analytics.html" class="nav-link">Analytics</a>
                 <a href="profile.html" class="nav-link">Profile</a>
             </nav>
         </aside>
 
+        <!-- Main Content -->
         <main class="main-content">
             <header class="topbar">
                 <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
@@ -38,17 +142,96 @@
                     <h1 class="text-2xl">Stock Graphs</h1>
                 </div>
 
-                <div class="card w-full" style="height: 480px; position: relative;">
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="flex items-center gap-4">
-                            <h2 class="text-xl" id="chart-title">Market Activity</h2>
-                            <div id="stock-tiles-container" class="stock-tiles-container">
+                <!-- Search + Stock Tiles -->
+                <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
+                    <div class="graph-search-wrap">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input id="graph-search" type="text" placeholder="Search stock…" autocomplete="off">
+                    </div>
+                    <div id="stock-tiles-container" class="stock-tiles-container" style="flex:1;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Chart Card -->
+                <div class="card w-full" style="padding: 20px;">
+                    <!-- Header row -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                        <h2 class="text-xl" id="chart-title" style="margin:0;">Market Activity</h2>
+                        <div class="tab-group">
+                            <button id="tab-intraday" class="tab-btn active">Intraday</button>
+                            <button id="tab-historical" class="tab-btn">Past 90 Days</button>
+                        </div>
+                    </div>
+
+                    <!-- Info Bar -->
+                    <div class="stock-info-bar" id="stock-info-bar">
+                        <div class="stock-info-item">
+                            <span class="stock-info-label">Price</span>
+                            <span class="stock-info-value" id="info-price">—</span>
+                        </div>
+                        <div class="stock-info-item">
+                            <span class="stock-info-label">Open</span>
+                            <span class="stock-info-value" id="info-open">—</span>
+                        </div>
+                        <div class="stock-info-item">
+                            <span class="stock-info-label">High</span>
+                            <span class="stock-info-value val-green" id="info-high">—</span>
+                        </div>
+                        <div class="stock-info-item">
+                            <span class="stock-info-label">Low</span>
+                            <span class="stock-info-value val-red" id="info-low">—</span>
+                        </div>
+                        <div class="stock-info-item">
+                            <span class="stock-info-label">Change</span>
+                            <span class="stock-info-value" id="info-change">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Chart -->
+                    <div class="chart-wrapper">
+                        <canvas id="candleCanvas"></canvas>
+                        <div class="chart-loading" id="chart-loading">Select a stock to view chart</div>
+                    </div>
+                </div>
+
+                <!-- AI Best Buy/Sell Strategy Panel -->
+                <div class="card w-full" style="margin-top:1.5rem;padding:20px;" id="bbs-panel">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div style="width:10px;height:10px;border-radius:50%;background:#818CF8;box-shadow:0 0 8px #818CF8;"></div>
+                            <h2 style="font-size:1.05rem;font-weight:700;margin:0;">🤖 AI Best Buy/Sell Strategy</h2>
+                            <span style="font-size:0.75rem;color:#848E9C;" id="bbs-symbol-label">— Select a stock</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <label style="font-size:0.8rem;color:#848E9C;">Max Transactions (k):</label>
+                            <select id="bbs-k" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+                                                       border-radius:6px;color:#EAECEF;padding:5px 10px;font-size:0.85rem;outline:none;">
+                                <option value="1" background="#818CF8;">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button id="bbs-refresh" style="padding:6px 14px;border-radius:6px;border:1px solid rgba(129,140,248,0.4);
+                                                             background:rgba(129,140,248,0.1);color:#818CF8;font-size:0.8rem;
+                                                             cursor:pointer;font-weight:600;transition:all 0.2s;"
+                                    onmouseenter="this.style.background='rgba(129,140,248,0.25)'"
+                                    onmouseleave="this.style.background='rgba(129,140,248,0.1)'">Refresh ↺</button>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" id="bbs-content">
+                        <div>
+                            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:#848E9C;margin-bottom:8px;letter-spacing:0.08em;">⚡ Intraday Strategy</div>
+                            <div id="bbs-intraday-result" style="color:#848E9C;font-size:0.875rem;padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.05);">
+                                Select a stock to see the best intraday strategy.
                             </div>
                         </div>
-                        <div class="badge badge-green" id="live-indicator">LIVE</div>
-                    </div>
-                    <div style="height: 380px; width: 100%;">
-                        <canvas id="mainChart"></canvas>
+                        <div>
+                            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:#848E9C;margin-bottom:8px;letter-spacing:0.08em;">📈 90-Day Strategy</div>
+                            <div id="bbs-historical-result" style="color:#848E9C;font-size:0.875rem;padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.05);">
+                                Select a stock to see the best 90-day strategy.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -57,7 +240,6 @@
 
     <script src="../api.js"></script>
     <script src="../auth.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../graph.js"></script>
+    <script src="../graph.js?v=4"></script>
 </body>
 </html>

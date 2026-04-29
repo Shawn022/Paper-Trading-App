@@ -9,6 +9,7 @@
 <body>
 
     <div class="app-container">
+        <!-- Sidebar -->
         <aside class="sidebar fade-in">
             <div class="sidebar-logo">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zm-4-4h-2v-4h-2v4H9v-6h2V9h2v4h2v4z"/></svg>
@@ -20,11 +21,14 @@
                 <a href="trading.html" class="nav-link">Trading</a>
                 <a href="history.html" class="nav-link">History</a>
                 <a href="learn.html" class="nav-link">Learn</a>
+                <a href="analytics.html" class="nav-link">Analytics</a>
                 <a href="profile.html" class="nav-link active">Profile</a>
             </nav>
         </aside>
 
+        <!-- Main Content -->
         <main class="main-content">
+            <!-- Topbar -->
             <header class="topbar">
                 <div class="user-badge" id="nav-profile-logo" title="Go to Profile">
                     <span class="user-name-display font-bold">User</span>
@@ -32,10 +36,12 @@
                 </div>
             </header>
 
+            <!-- Content Area -->
             <div class="content-area fade-in">
                 <h1 class="text-2xl mb-8">User Profile</h1>
 
                 <div class="flex gap-8">
+                    <!-- Left: Profile Widget -->
                     <div class="card flex flex-col items-center gap-4" style="width: 300px;">
                         <div class="avatar user-avatar-display" style="width: 100px; height: 100px; font-size: 3rem;">U</div>
                         <h2 class="text-xl font-bold user-name-display">User Name</h2>
@@ -43,6 +49,7 @@
                         <button class="btn btn-outline w-full mt-4 text-red border-red" id="logout-btn-2">Sign Out</button>
                     </div>
 
+                    <!-- Right: Info -->
                     <div class="flex-1 flex flex-col gap-4">
                         <div class="card">
                             <h3 class="text-lg font-bold mb-4">Account Information</h3>
@@ -61,6 +68,7 @@
                         <div class="card">
                             <h3 class="text-lg font-bold mb-4">Active Holdings</h3>
                             <div id="holdings-list" class="flex flex-col gap-4 text-muted">
+                                <!-- Populated dynamically -->
                                 Loading holdings...
                             </div>
                         </div>
@@ -70,6 +78,7 @@
         </main>
     </div>
 
+    <!-- Core Scripts -->
     <script src="../api.js"></script>
     <script src="../auth.js"></script>
     <script>
