@@ -101,7 +101,6 @@ The project follows a standard layered architecture to ensure separation of conc
 ## 🔮 Future Improvements
 * [ ] **JWT Authentication:** Secure endpoints with token-based login.
 * [ ] **Real-time Data:** Integrate a third-party API (like Alpha Vantage) for live prices.
-* [ ] **Analytics:** Add Portfolio Profit/Loss (P&L) tracking.
 * [ ] **Docker:** Containerize the application for easy deployment.
 
 ---
