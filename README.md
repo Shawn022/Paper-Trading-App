@@ -4,7 +4,7 @@ A robust **Spring Boot** application designed to simulate stock market trading. 
 
 This project demonstrates proficiency in **REST API design**, **layered architecture**, and the complex **business logic** required for financial transactions.
 
-#This is an ongoing project. I need to recreate frontend using React or Nextj(feel free to contribute in frontend). I am open to suggestions for future improvements.
+# This is an ongoing project. I need to recreate frontend using React or Nextj(feel free to contribute in frontend). I am open to suggestions for future improvements.
 
 ---
 
