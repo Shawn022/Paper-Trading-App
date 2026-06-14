@@ -1,5 +1,6 @@
 package com.papertrading.backend.controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,8 +17,9 @@ public class PortfolioController {
     @Autowired
     private PortfolioService portfolioService;
 
-    @GetMapping("/{userId}/portfolio")
-    public List<GetPortfolioResponse> getPortfolio(@PathVariable Long userId){
-        return portfolioService.getPortfolio(userId);
+    @GetMapping("/portfolio")
+    public PortfolioResponse getPortfolio(Authentication authentication){
+        System.out.println("Portfolio fetched");
+        return portfolioService.getPortfolio(authentication.getName());
     }
 }

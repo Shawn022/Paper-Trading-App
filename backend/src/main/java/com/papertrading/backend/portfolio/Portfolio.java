@@ -21,7 +21,9 @@ public class Portfolio {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "stockSymbol")
     private String stockSymbol;
+
     private BigDecimal quantity;
     private BigDecimal avgBuyPrice;
 

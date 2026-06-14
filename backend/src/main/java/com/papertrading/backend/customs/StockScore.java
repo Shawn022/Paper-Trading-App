@@ -5,12 +5,14 @@ import java.util.List;
 
 public class StockScore {
     String symbol;
+    String name;
     double trendScore;
     double riskScore;
     double weightedScore;
 
-    public StockScore(String symbol,  List<BigDecimal> priceHistory) {
+    public StockScore(String symbol,String name,  List<BigDecimal> priceHistory) {
         this.symbol = symbol;
+        this.name = name;
         this.trendScore = calculateTrendScore(priceHistory);
         this.riskScore = calculateRiskScore(priceHistory);
         this.weightedScore = calculateScore();
@@ -19,12 +21,12 @@ public class StockScore {
     private double calculateTrendScore(List<BigDecimal> priceHistory){
         if(priceHistory.size()<20)return 0;
 
-        double shortMA = average(priceHistory , priceHistory.size()-10 , priceHistory.size());
-        double longMA = average(priceHistory , priceHistory.size()-55 , priceHistory.size());
+        double shortA = average(priceHistory , priceHistory.size()-10 , priceHistory.size());
+        double longA = average(priceHistory , priceHistory.size()-55 , priceHistory.size());
 
-        if(longMA == 0)return 0;
+        if(longA == 0)return 0;
 
-        return ((shortMA - longMA) / longMA)*100;
+        return ((shortA - longA) / longA)*100;
 
     }
 
@@ -63,6 +65,7 @@ public class StockScore {
     }
 
     public String getSymbol(){return symbol;}
+    public String getName(){ return name; }
     public double getRiskScore(){return riskScore;}
     public double getTrendScore(){return trendScore;}
     public double getWeightedScore(){return weightedScore;}

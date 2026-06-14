@@ -1,45 +1,131 @@
 package com.papertrading.backend.service.stock;
 
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import com.papertrading.backend.customs.StockScore;
 import com.papertrading.backend.dto.stock.Candle;
+import com.papertrading.backend.dto.stock.StockScoreDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.List;
 
 @Service
 public class StockCacheService {
-    private ConcurrentHashMap<String , CacheEntry> cache = new ConcurrentHashMap<>();
 
-    public List<Candle> get(String key) {
-        CacheEntry entry = cache.get(key);
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
-        if (entry != null && !entry.isExpired()) {
-            return entry.getData();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    public void setStockLoaded(){
+        redisTemplate.opsForValue().set("system:stocks:loaded" , "true");
+    }
+
+    public boolean stockLoaded(){
+        String val = redisTemplate.opsForValue().get("system:stocks:loaded");
+        return "true".equals(val);
+    }
+
+    public List<Candle> getStock(String key) {
+
+        try {
+
+            String json =
+                    redisTemplate.opsForValue().get(key);
+
+            if(json == null) {
+                return null;
+            }
+
+            return objectMapper.readValue(
+                    json,
+                    new TypeReference<List<Candle>>() {}
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void putStock(
+            String key,
+            List<Candle> data
+    ) {
+
+        if (data == null || data.isEmpty()) {
+            return;
         }
 
-        cache.remove(key);
-        return null;
+        try {
+            if(isSynthetic(data.getLast())){
+                data.removeLast();
+            }
+
+            String json =
+                    objectMapper.writeValueAsString(data);
+
+            redisTemplate.opsForValue()
+                    .set(
+                            key,
+                            json
+                    );
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void put(String key, List<Candle> data, long ttlMillis) {
-        CacheEntry entry = new CacheEntry();
-        entry.setData(data);
-        entry.setExpiryTime(System.currentTimeMillis() + ttlMillis);
+    public  void putTopStocks(
+            String key,
+            List<StockScoreDTO> data
+    ){
+        if (data == null || data.isEmpty()) {
+            return;
+        }
 
-        cache.put(key, entry);
+        try {
+
+            String json =
+                    objectMapper.writeValueAsString(data);
+
+            redisTemplate.opsForValue()
+                    .set(
+                            key,
+                            json
+                    );
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
-}
 
-class CacheEntry{
-    private List<Candle> data;
-    private long expiryTime;
+    public List<StockScoreDTO> getTopStock(String key) {
 
-    public List<Candle> getData() { return data; }
-    public void setData(List<Candle> data) { this.data = data; }
+        try {
+            String json =
+                    redisTemplate.opsForValue().get(key);
 
-    public long getExpiryTime() { return expiryTime; }
-    public void setExpiryTime(long expiryTime) { this.expiryTime = expiryTime; }
+            if(json == null) {
+                return null;
+            }
 
-    public boolean isExpired() {
-        return System.currentTimeMillis() > expiryTime;
+            return  objectMapper.readValue(
+                    json,
+                    new TypeReference<List<StockScoreDTO>>() {}
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean isSynthetic(Candle candle) {
+
+        return candle.getVolume() == 0
+                && candle.getOpen().compareTo(candle.getHigh()) == 0
+                && candle.getHigh().compareTo(candle.getLow()) == 0
+                && candle.getLow().compareTo(candle.getClose()) == 0;
     }
 }

@@ -1,26 +1,12 @@
 package com.papertrading.backend.dto.trade;
 
+import lombok.Getter;
+
 import java.math.BigDecimal;
 
+@Getter
 public class BuyStockRequest {
-    private String email;
     private String symbol;
     private BigDecimal quantity;
-    private BigDecimal price;
 
-    public String getEmail(){
-        return email;
-    }
-
-    public String getSymbol(){
-        return symbol;
-    }
-
-    public BigDecimal getQuantity(){
-        return quantity;
-    }
-
-    public BigDecimal getPrice(){
-        return price;
-    }
 }

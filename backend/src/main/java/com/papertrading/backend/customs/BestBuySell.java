@@ -9,7 +9,7 @@ public class BestBuySell {
     private List<int[]> transactions;
 
     private Double[][][] memo;
-    private int[][][] choice; // 0 = skip, 1 = buy, 2 = sell
+    private int[][][] choice;
 
     public BestBuySell(List<Double> arr, int k) {
         this.nums = arr;
@@ -22,7 +22,7 @@ public class BestBuySell {
 
         this.maxProfit = dp(0, 1, k);
 
-        reconstruct(); // build buy/sell indices
+        reconstruct();
     }
 
     private Double dp(int idx, int canBuy, int k) {
@@ -39,10 +39,10 @@ public class BestBuySell {
             Double buy = -nums.get(idx) + dp(idx + 1, 0, k);
 
             if (buy > skip) {
-                choice[idx][k][canBuy] = 1; // buy
+                choice[idx][k][canBuy] = 1;
                 ans = buy;
             } else {
-                choice[idx][k][canBuy] = 0; // skip
+                choice[idx][k][canBuy] = 0;
                 ans = skip;
             }
 
@@ -51,10 +51,10 @@ public class BestBuySell {
             Double sell = nums.get(idx) + dp(idx + 1, 1, k - 1);
 
             if (sell > skip) {
-                choice[idx][k][canBuy] = 2; // sell
+                choice[idx][k][canBuy] = 2;
                 ans = sell;
             } else {
-                choice[idx][k][canBuy] = 0; // skip
+                choice[idx][k][canBuy] = 0;
                 ans = skip;
             }
         }

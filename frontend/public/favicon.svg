@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Background fills the entire canvas — no padding -->
+  <rect width="32" height="32" fill="#111827"/>
+
+  <!-- Candle 1 — red -->
+  <line x1="5" y1="4" x2="5" y2="26" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>
+  <rect x="2" y="10" width="6" height="11" rx="1" fill="#ef4444"/>
+
+  <!-- Candle 2 — red -->
+  <line x1="13" y1="6" x2="13" y2="25" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>
+  <rect x="10" y="10" width="6" height="10" rx="1" fill="#ef4444"/>
+
+  <!-- Candle 3 — green -->
+  <line x1="21" y1="5" x2="21" y2="24" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+  <rect x="18" y="7" width="6" height="12" rx="1" fill="#22c55e"/>
+
+  <!-- Candle 4 — green -->
+  <line x1="29" y1="3" x2="29" y2="22" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+  <rect x="26" y="4" width="6" height="13" rx="1" fill="#22c55e"/>
+
+  <!-- Trend arrow -->
+  <path d="M3 24 Q16 18 30 4" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
+  <path d="M26 2 L31 5 L28 10" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

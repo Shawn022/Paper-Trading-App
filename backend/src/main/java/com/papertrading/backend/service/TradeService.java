@@ -1,5 +1,8 @@
 package com.papertrading.backend.service;
 
+import com.papertrading.backend.exception.BadRequestException;
+import com.papertrading.backend.exception.InsufficientBalanceException;
+import com.papertrading.backend.exception.ResourceNotFoundException;
 import com.papertrading.backend.service.stock.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +13,7 @@ import java.util.List;
 import java.math.BigDecimal;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.papertrading.backend.trade.Trade;
@@ -20,7 +24,6 @@ import com.papertrading.backend.trade.TradeRepository;
 import com.papertrading.backend.portfolio.PortfolioRepository;
 
 import com.papertrading.backend.dto.trade.*;
-import com.papertrading.backend.service.stock.StockService;
 
 
 @Service
@@ -38,28 +41,25 @@ public class TradeService {
     @Autowired
     private StockService stockService;
 
-    public List<GetTradeResponse> getAllTrades(Long userId){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found"
-                ));
-        return tradeRepository.findByUser_idOrderByTimestampDesc(userId);
+    public List<GetTradeResponse> getAllTrades(String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: "+ email));
+
+        return tradeRepository.findByUserOrderByTimestampDesc(user);
     }
 
-    public void buyStock(BuyStockRequest request,Long userId){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found"
-                ));
+    @Transactional
+    public TradeResponse buyStock(BuyStockRequest request,String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: "+ email));
+
         BigDecimal price = stockService.getStock( request.getSymbol() ).getPrice();
         BigDecimal totalCost = request.getQuantity().multiply(price) ;
 
         if (user.getBalance().compareTo(totalCost) < 0 ) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Insufficient balance"
+            throw new InsufficientBalanceException(
+                    "Insufficient balance. Required: " + totalCost +
+                            ", Available: " + user.getBalance()
             );
         }
 
@@ -89,15 +89,15 @@ public class TradeService {
         trade.setTimestamp(LocalDateTime.now());
 
         tradeRepository.save(trade);
+
+        return new TradeResponse(request.getSymbol(), request.getQuantity() ,price ,"BUY");
     }
 
-    public void sellStock(SellStockRequest request,Long userId) {
+    @Transactional
+    public TradeResponse sellStock(SellStockRequest request,String email) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found"
-                ));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: "+ email));
 
         Portfolio portfolio = portfolioRepository
                 .findByUserAndStockSymbol(user, request.getSymbol())
@@ -107,16 +107,17 @@ public class TradeService {
                 ));
 
         if (portfolio.getQuantity().compareTo(request.getQuantity()) < 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Not enough shares"
-            );
+            throw new BadRequestException("Not enough shares");
         }
 
         BigDecimal price = stockService.getStock( request.getSymbol() ).getPrice();
         BigDecimal total = request.getQuantity().multiply(price);
 
+        BigDecimal costPrice = request.getQuantity().multiply(portfolio.getAvgBuyPrice());
+        BigDecimal PnL = total.subtract(costPrice);
+
         user.setBalance(user.getBalance().add(total) );
+        user.setRealisedPnL(user.getRealisedPnL().add(PnL));
 
         Trade trade = new Trade();
         trade.setUser(user);
@@ -127,8 +128,15 @@ public class TradeService {
         trade.setTimestamp(java.time.LocalDateTime.now());
 
         portfolio.setQuantity(portfolio.getQuantity().subtract(request.getQuantity()) );
-        portfolioRepository.save(portfolio);
+
+        if (portfolio.getQuantity().compareTo(BigDecimal.ZERO) == 0) {
+            portfolioRepository.delete(portfolio);
+        } else {
+            portfolioRepository.save(portfolio);
+        }
 
         tradeRepository.save(trade);
+
+        return new TradeResponse(request.getSymbol(), request.getQuantity() ,price ,"SELL");
     }
 }

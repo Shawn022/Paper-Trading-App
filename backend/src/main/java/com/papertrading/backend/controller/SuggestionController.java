@@ -2,6 +2,7 @@ package com.papertrading.backend.controller;
 
 import com.papertrading.backend.customs.BestBuySell;
 import com.papertrading.backend.dto.stock.Candle;
+import com.papertrading.backend.dto.stock.StockScoreDTO;
 import com.papertrading.backend.service.SuggestionService;
 import com.papertrading.backend.service.stock.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,6 @@ import com.papertrading.backend.customs.StockScore;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,17 +24,17 @@ public class SuggestionController {
     @Autowired
     private StockService stockService;
 
-    @GetMapping("/top-intraday")
-    private List<StockScore> getTopIntraday(){
+    @GetMapping("/top/intraday")
+    private List<StockScoreDTO> getTopIntraday(){
         return suggestionService.getTopStocks("intraday");
     }
 
-    @GetMapping("/top-historical")
-    private List<StockScore> getTopHistorical(){
-        return suggestionService.getTopStocks("historical");
+    @GetMapping("/top/history")
+    private List<StockScoreDTO> getTopHistorical(){
+        return suggestionService.getTopStocks("history");
     }
 
-    @GetMapping("/BestBuySell/intraday")
+    @GetMapping("/buy-sell/intraday")
     private BestBuySell getBestBuySellResultI(@RequestParam String symbol,@RequestParam int k){
         List<Double> nums = new ArrayList<>();
         List<Candle> candles = stockService.getStock(symbol).getIntradayCandles();
@@ -44,10 +44,10 @@ public class SuggestionController {
         return suggestionService.getBestBuySellTiming(nums,k);
     }
 
-    @GetMapping("/BestBuySell/historical")
+    @GetMapping("/buy-sell/history")
     private BestBuySell getBestBuySellResultH(@RequestParam String symbol,@RequestParam int k){
         List<Double> nums = new ArrayList<>();
-        List<Candle> candles = stockService.getStock(symbol).getHistoricalCandles();
+        List<Candle> candles = stockService.getStock(symbol).getHistoryCandles();
         candles.forEach(candle -> {
             nums.add( candle.getClose().doubleValue() );
         });

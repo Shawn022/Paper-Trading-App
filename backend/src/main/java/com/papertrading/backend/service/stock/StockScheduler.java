@@ -1,7 +1,10 @@
 package com.papertrading.backend.service.stock;
 
 import com.papertrading.backend.dto.stock.Candle;
-import com.papertrading.backend.utils.StockLoader;
+import com.papertrading.backend.service.SuggestionService;
+import com.papertrading.backend.utils.StockRegistry;
+import com.papertrading.backend.websocket.PriceBroadcastService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +24,7 @@ import java.util.List;
 @Service
 public class StockScheduler {
     @Autowired
-    private StockLoader stockLoader;
+    private StockRegistry stockRegistry;
 
     @Autowired
     private StockCacheService stockCacheService;
@@ -29,39 +32,89 @@ public class StockScheduler {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private  MarketHoursService marketHoursService;
+
+    @Autowired
+    private PriceBroadcastService priceBroadcastService;
+
+    @Autowired
+    private SuggestionService suggestionService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @PostConstruct
+    public void onStartup() {
+
+        System.out.println("Server restarted → syncing stock state");
+
+        stockRegistry.getSymbols().parallelStream().forEach(symbol -> {
+            List<Candle> candles = fetchIntraday(symbol);
+
+            stockCacheService.putStock("stock:intraday:" + symbol, candles);
+
+            priceBroadcastService.publish(symbol, candles.getLast());
+        });
+        stockRegistry.getSymbols().parallelStream().forEach(symbol -> {
+            List<Candle> candles = fetchHistory(symbol);
+
+            stockCacheService.putStock("stock:history:" + symbol, candles);
+
+            priceBroadcastService.publish(symbol, candles.getLast());
+        });
+
+        suggestionService.cacheTopStocks("intraday");
+        suggestionService.cacheTopStocks("history");
+
+        stockCacheService.setStockLoaded();
+        System.out.println("Initial Setup Completed");
+    }
 
     @Scheduled(fixedRate = 60000)
     public void updateIntraday() {
 
-        for (String symbol : stockLoader.getSymbols()) {
+        if(!marketHoursService.isMarketOpen() || !stockCacheService.stockLoaded()){
+            return;
+        }
+
+        stockRegistry.getSymbols().parallelStream().forEach(symbol -> {
             List<Candle> candles = fetchIntraday(symbol);
 
-            stockCacheService.put(
-                    "stock:intraday:" + symbol,
-                    candles,
-                    60000
-            );
+            stockCacheService.putStock("stock:intraday:" + symbol, candles);
 
-
-        }
+            if(!isSynthetic(candles.getLast())){
+                priceBroadcastService.publish(symbol, candles.getLast());
+            }
+        });
         System.out.println("Intraday Prices Fetched");
     }
 
-    @Scheduled(fixedRate = 6 * 60 * 60 * 1000)
+    @Scheduled(cron = "0 0 0 * * *")
     public void updateHistory() {
 
-        for (String symbol : stockLoader.getSymbols()) {
+        stockRegistry.getSymbols().parallelStream().forEach(symbol -> {
             List<Candle> candles = fetchHistory(symbol);
 
-            stockCacheService.put(
-                    "stock:history:" + symbol,
-                    candles,
-                    12 * 60 * 60 * 1000
-            );
+            stockCacheService.putStock("stock:history:" + symbol, candles);
 
-        }
+            priceBroadcastService.publish(symbol, candles.getLast());
+        });
+
         System.out.println("Historical Prices Fetched");
+    }
+
+    @Scheduled(fixedRate = 60 * 60000)
+    public void setTopStocksIntraday(){
+        if(!stockCacheService.stockLoaded())
+            return;
+        suggestionService.cacheTopStocks("intraday");
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void setTopStocksHistorical(){
+        if(!stockCacheService.stockLoaded())
+            return;
+        suggestionService.cacheTopStocks("history");
     }
 
     //helper function to create list of candles
@@ -149,7 +202,7 @@ public class StockScheduler {
 
         try {
             String url = "https://query1.finance.yahoo.com/v8/finance/chart/"
-                    + symbol + "?range=60d&interval=1d";
+                    + symbol + "?range=90d&interval=1d";
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("User-Agent", "Mozilla/5.0");
@@ -168,5 +221,13 @@ public class StockScheduler {
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch history for " + symbol, e);
         }
+    }
+
+    private boolean isSynthetic(Candle candle) {
+
+        return candle.getVolume() == 0
+                && candle.getOpen().compareTo(candle.getHigh()) == 0
+                && candle.getHigh().compareTo(candle.getLow()) == 0
+                && candle.getLow().compareTo(candle.getClose()) == 0;
     }
 }

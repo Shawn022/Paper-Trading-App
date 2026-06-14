@@ -1,6 +1,7 @@
 package com.papertrading.backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
@@ -18,32 +19,21 @@ public class TradeController {
     @Autowired
     private TradeService tradeService;
 
-    @GetMapping("/{userId}/trades")
-    public List<GetTradeResponse> allTrades(@PathVariable long userId){
-        return tradeService.getAllTrades(userId);
+    @GetMapping("/trades")
+    public List<GetTradeResponse> allTrades(Authentication authentication)
+    {
+        return tradeService.getAllTrades(authentication.getName());
+
     }
 
-    @PostMapping("/{userId}/trade/buy")
-    public ResponseEntity<String> buyStock(@RequestBody BuyStockRequest request,@PathVariable long userId){
-        try {
-            tradeService.buyStock(request,userId);
-            return ResponseEntity.ok("Stock purchased");
-        } catch (ResponseStatusException ex) {
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .body(ex.getReason());
-        }
+    @PostMapping("/trade/buy")
+    public TradeResponse buyStock(@RequestBody BuyStockRequest request, Authentication authentication){
+            return tradeService.buyStock(request,authentication.getName());
+
     }
 
-    @PostMapping("/{userId}/trade/sell")
-    public ResponseEntity<String> sellStock(@RequestBody SellStockRequest request,@PathVariable long userId){
-         try{
-             tradeService.sellStock(request,userId);
-             return ResponseEntity.ok("Stock sold");
-         }catch (ResponseStatusException ex){
-             return ResponseEntity
-                     .status(ex.getStatusCode())
-                     .body(ex.getReason());
-         }
+    @PostMapping("/trade/sell")
+    public TradeResponse sellStock(@RequestBody SellStockRequest request,Authentication authentication){
+             return tradeService.sellStock(request,authentication.getName());
     }
 }

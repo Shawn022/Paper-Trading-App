@@ -12,7 +12,6 @@ public class AppConfig {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
-
     }
 
     @Bean
@@ -20,11 +19,14 @@ public class AppConfig {
         return new WebMvcConfigurer() {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedMethods("*");
+                        .allowedOrigins("http://localhost:5173")
+                        .allowedHeaders("*")
+                        .allowedMethods("*")
+                        .allowCredentials(true);
             }
         };
     }
+
 
 
 }

@@ -17,9 +17,12 @@ public class User {
     @Column(unique = true,nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
     private BigDecimal balance;
+
+    private BigDecimal realisedPnL;
 
     @Column(nullable = false,updatable = false)
     private LocalDateTime createdAt;
@@ -62,11 +65,29 @@ public class User {
         return password;
     }
 
+    public void setPassword(String password){
+        this.password = password;
+    }
+
     public BigDecimal getBalance() {
         return balance;
     }
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public BigDecimal getRealisedPnL() {
+        return realisedPnL;
+    }
+
+    public void setRealisedPnL(BigDecimal realisedPnL) {
+        this.realisedPnL = realisedPnL;
+    }
+
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
     }
 }
