@@ -1,114 +1,259 @@
-# 📈 Paper Trading Backend
+# 📈 Paper Trading App
 
-A robust **Spring Boot** application designed to simulate stock market trading. This project allows users to practice trading strategies in a risk-free environment by providing a virtual brokerage experience. 
-
-This project demonstrates proficiency in **REST API design**, **layered architecture**, and the complex **business logic** required for financial transactions.
-
-# This is an ongoing project. I need to recreate frontend using React or Nextjs(feel free to contribute in frontend). I am open to suggestions for future improvements.
+A full-stack paper trading platform that simulates real-world stock trading without financial risk. Built with Java Spring Boot and React, featuring real-time price updates, portfolio management, and comprehensive P&L tracking.
 
 ---
 
-## 🛠 Tech Stack
+## 🚀 Features
 
-* **Language:** Java 17+
-* **Framework:** Spring Boot (Web, Data JPA)
-* **Database:** MySQL
-* **Build Tool:** Maven
-* **API Testing:** Postman / Swagger
+- **JWT Authentication** — Secure register/login with token-based auth
+- **Real-Time Stock Prices** — Live price delivery via WebSockets + STOMP protocol
+- **Buy & Sell Orders** — Market order execution with balance validation
+- **Portfolio Management** — Track holdings with average buy price calculation
+- **P&L Tracking** — Realised and unrealised profit/loss calculated in real time
+- **Redis Caching** — Stock prices cached for low-latency reads
+- **Trade History** — Complete log of all executed trades
 
 ---
 
-## 🏗 Architecture
+## 🛠️ Tech Stack
 
-The project follows a standard layered architecture to ensure separation of concerns and maintainability.
+### Backend
+| Technology | Purpose |
+|---|---|
+| Java 21 | Core language |
+| Spring Boot 4.0.2 | Application framework |
+| Spring Security | Authentication & authorization |
+| JWT (jjwt) | Token-based auth |
+| Spring Data JPA | ORM and database access |
+| MySQL 8.0 | Primary database |
+| Redis | Price caching |
+| WebSocket + STOMP | Real-time price streaming |
+| Maven | Build tool |
 
+### Frontend
+| Technology | Purpose |
+|---|---|
+| React + Vite | UI framework |
+| Redux Toolkit | State management |
+| React Router | Client-side routing |
+| Recharts | Portfolio charts |
+| Axios | HTTP client |
+| STOMP.js | WebSocket client |
+| Tailwind CSS | Styling |
 
+### DevOps
+| Technology | Purpose |
+|---|---|
+| Docker | Containerization |
+| Docker Compose | Multi-container orchestration |
 
-### Layers
-* **Controller:** Handles incoming REST requests and maps them to service methods.
-* **Service:** The "brain" of the app. Manages trade validation, balance checks, and portfolio logic.
-* **Repository:** Interacts with the MySQL database using Spring Data JPA.
-* **Entity:** Defines the database schema (Users, Trades, Portfolios).
-* **DTO (Data Transfer Object):** Facilitates secure and optimized data transfer between client and server.
+---
+
+## 🏗️ Architecture
+
+```
+React Frontend
+      │
+      ├── REST API (HTTP)
+      │         │
+      │    Spring Boot
+      │         │
+      │    ┌────┴─────┐
+      │  MySQL      Redis
+      │
+      └── WebSocket (STOMP)
+                │
+           Spring Boot
+                │
+          Price Updates
+```
+
+### Backend Layer Structure
+```
+Controller  →  Service  →  Repository  →  Entity
+                │
+               DTO
+```
+
+---
+
+## 📁 Project Structure
+
+```
+Paper-Trading-App/
+├── backend/
+│   ├── src/main/java/com/papertrading/backend/
+│   │   ├── config/          # Security, Redis, WebSocket config
+│   │   ├── controller/      # REST API endpoints
+│   │   ├── service/         # Business logic
+│   │   ├── repository/      # Database access
+│   │   ├── dto/             # Data transfer objects
+│   │   ├── entity/          # JPA entities
+│   │   ├── security/        # JWT filter and utils
+│   │   ├── exception/       # Global exception handling
+│   │   └── websocket/       # WebSocket price broadcasting
+│   └── Dockerfile
+├── frontend/
+│   └── src/
+│       ├── components/      # Reusable UI components
+│       ├── pages/           # Route pages
+│       ├── store/           # Redux slices
+│       └── services/        # API calls
+├── docker-compose.yml
+└── .env.example
+```
+
+---
+
+## ⚙️ Running Locally
+
+### Prerequisites
+- Java 21
+- Maven
+- MySQL 8.0
+- Redis
+- Node.js 18+
+
+### Steps
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/Shawn022/Paper-Trading-App.git
+cd Paper-Trading-App
+```
+
+**2. Configure environment**
+```bash
+cp .env.example backend/.env
+# Fill in your values in backend/.env
+```
+
+**3. Start the backend**
+```bash
+cd backend
+mvn clean package -DskipTests
+mvn spring-boot:run
+```
+
+**4. Start the frontend**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## 🐳 Running with Docker
+
+### Prerequisites
+- Docker
+- Docker Compose
+
+### Steps
+
+**1. Configure environment**
+```bash
+cp .env.example .env
+# Fill in your values in .env
+```
+
+**2. Build and start all containers**
+```bash
+cd backend
+mvn clean package -DskipTests
+cd ..
+docker-compose up --build
+```
+
+This spins up three containers:
+- `paper_trading_app` — Spring Boot backend on port 8080
+- `paper_trading_mysql` — MySQL database on port 3306
+- `paper_trading_redis` — Redis cache on port 6379
+
+**3. Stop containers**
+```bash
+# Stop but keep data
+docker-compose down
+
+# Stop and wipe all data
+docker-compose down -v
+```
+
+---
+
+## 🔑 Environment Variables
+
+Copy `.env.example` and fill in your values:
+
+```properties
+DB_USERNAME=root
+DB_PASSWORD=your_password
+DB_NAME=paper_trading
+JWT_SECRET=your_jwt_secret_here
+JWT_EXPIRATION=604800000
+```
 
 ---
 
 ## 📡 API Endpoints
 
-### User Management
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/api/users/register` | `POST` | Create a new user account |
-| `/api/users/login` | `POST` | Authenticate user credentials |
+### Auth
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/v1/users/register` | Register new user |
+| POST | `/api/v1/users/login` | Login and get JWT token |
 
-### Trading Operations
-| Endpoint | Method | Description | Validation |
-| :--- | :--- | :--- | :--- |
-| `/api/users/trade/buy` | `POST` | Purchase shares | Sufficient cash balance required |
-| `/api/users/trade/sell` | `POST` | Sell owned shares | Must own the asset & sufficient quantity |
+### Trading
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/v1/trade/buy` | Execute a buy order |
+| POST | `/api/v1/trade/sell` | Execute a sell order |
+| GET | `/api/v1/trade/history` | Get trade history |
 
-### Portfolio & History
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/api/users/{userId}/portfolio` | `GET` | View current holdings and average buy prices |
-| `/api/users/{userId}/trades` | `GET` | Retrieve full history of buy/sell transactions |
+### Portfolio
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/portfolio` | Get portfolio with P&L |
 
----
+### Stocks
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/stocks` | Get available stocks |
+| GET | `/api/v1/stocks/{symbol}` | Get stock details |
 
-## 🚀 Getting Started
-
-### Prerequisites
-* JDK 17 or higher
-* Maven 3.6+
-* MySQL Server
-
-### Installation & Setup
-
-1.  **Clone the repository**
-    ```bash
-    git clone [https://github.com/Shawn022/paper-trading-backend.git](https://github.com/Shawn022/paper-trading-backend.git)
-    cd paper-trading-backend
-    ```
-
-2.  **Database Configuration**
-    Create a new schema in MySQL:
-    ```sql
-    CREATE DATABASE paper_trading;
-    ```
-
-3.  **Create `.env`**:
-    ```.env
-    Make .env file and setup these variables for application.properties
-    spring.datasource.url=Your_DB_Address
-    spring.datasource.username=Your_DB_Username
-    spring.datasource.password=Your_DB_Password
-    ```
-
-4.  **Run the Application**
-    ```bash
-    mvn spring-boot:run
-    ```
-    The server will start at `http://localhost:8080`.
+### WebSocket
+| Endpoint | Description |
+|---|---|
+| `ws://localhost:8080/ws` | WebSocket connection |
+| `/topic/stocks/{symbol}` | Subscribe to live price updates |
 
 ---
 
-## 💡 Key Features & Logic
+## 💡 Key Technical Decisions
 
-* **Transaction Integrity:** Ensures that a user cannot buy more than they can afford or sell more than they own.
-* **Portfolio Tracking:** Automatically updates quantities and calculates the average purchase price as trades occur.
-* **Relational Mapping:** Uses JPA associations to link users to their specific trade history and current holdings.
+**Why Java Spring Boot?**
+Fintech systems demand strong typing, robust transaction management, and enterprise-grade security. Spring Boot's `@Transactional` annotation ensures atomic trade operations — if any step of a buy/sell fails, the entire operation rolls back, preventing data inconsistency.
 
----
+**Why WebSockets + STOMP?**
+HTTP polling for stock prices creates unnecessary load. WebSockets maintain a persistent connection so the server pushes price updates to clients the moment they're available — exactly how real trading platforms work.
 
-## 🔮 Future Improvements
-* [ ] **JWT Authentication:** Secure endpoints with token-based login.
-* [ ] **Real-time Data:** Integrate a third-party API (like Alpha Vantage) for live prices.
-* [ ] **Docker:** Containerize the application for easy deployment.
+**Why Redis?**
+Stock prices are read far more often than they change. Caching prices in Redis means portfolio calculations and stock lookups hit memory instead of the database, significantly reducing latency.
 
 ---
 
-## 🎓 Learning Outcomes
-* Architecting scalable Java applications using Spring Boot.
-* Managing complex relational data with Hibernate/JPA.
-* Implementing strict financial validation logic.
-* Standardizing API responses and error handling.
+## 🔒 Security
+
+- Passwords hashed with BCrypt
+- JWT tokens expire after 7 days
+- User ID extracted from JWT server-side — users cannot access other users' data
+- All trade endpoints protected by Spring Security filter chain
+
+---
+
+## 👨‍💻 Author
+
+**Shawn** — 3rd Year B.Tech CSE Student  
+[GitHub](https://github.com/Shawn022)

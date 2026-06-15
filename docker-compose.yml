@@ -1,0 +1,45 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: paper_trading_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: paper_trading_redis
+    ports:
+      - "6379:6379"
+
+  app:
+    build: ./backend
+    container_name: paper_trading_app
+    ports:
+      - "8080:8080"
+    environment:
+      spring.datasource.url: jdbc:mysql://mysql:3306/${DB_NAME}
+      spring.datasource.username: ${DB_USERNAME}
+      spring.datasource.password: ${DB_PASSWORD}
+      spring.data.redis.host: redis
+      spring.data.redis.port: "6379"
+      jwt.secret: ${JWT_SECRET}
+      jwt.expiration: ${JWT_EXPIRATION}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  mysql_data:

@@ -1,0 +1,11 @@
+# Use Java 21 as base
+FROM amazoncorretto:21-alpine
+
+# Set working directory inside container
+WORKDIR /app
+
+# Copy built jar into container
+COPY target/*.jar app.jar
+
+# Run the jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
