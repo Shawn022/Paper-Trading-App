@@ -9,7 +9,7 @@ api.interceptors.request.use(config => {
   const token =
     localStorage.getItem("token");
 
-  if(token){
+  if (token) {
     config.headers.Authorization =
       `Bearer ${token}`;
   }
@@ -22,7 +22,11 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
 
-    if (status === 401 || status === 403) {
+    if (
+      (status === 401 || status === 403) &&
+      currentPath !== "/login" &&
+      currentPath !== "/register"
+    ) {
       // clear invalid token
       localStorage.removeItem("token");
 
