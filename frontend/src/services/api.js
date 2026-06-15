@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080"
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
 });
 
 api.interceptors.request.use(config => {
@@ -16,5 +16,22 @@ api.interceptors.request.use(config => {
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+
+    if (status === 401 || status === 403) {
+      // clear invalid token
+      localStorage.removeItem("token");
+
+      // redirect to login
+      window.location.href = "/login";
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export default api;

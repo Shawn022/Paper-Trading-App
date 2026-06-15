@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { usePortfolioStore } from "./store/portfolioStore";
+import { connectWebSocket, disconnectWebSocket } from "./services/websocket";
 
 function AppInit() {
     const fetchPortfolio = usePortfolioStore(
@@ -8,7 +9,14 @@ function AppInit() {
 
     useEffect(() => {
         fetchPortfolio();
+
     }, [fetchPortfolio]);
+
+    useEffect(() => {
+        connectWebSocket();
+
+        return () => disconnectWebSocket();
+    }, []);
 
     return null;
 }

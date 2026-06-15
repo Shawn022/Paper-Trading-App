@@ -2,7 +2,8 @@ import {
   BrowserRouter,
   Routes,
   Route,
-  Navigate
+  Navigate,
+  useLocation
 } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -18,23 +19,24 @@ import AppInit from "./AppInit";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
 
-import { connectWebSocket ,disconnectWebSocket } from "./services/websocket";
+
 
 function App() {
 
-  useEffect(() => {
-    connectWebSocket();
+  const location = useLocation();
 
-    return () => disconnectWebSocket();
-  }, []);
+  const hideAppInit =
+    location.pathname === "/login" ||
+    location.pathname === "/register";
+
 
   return (
-    <BrowserRouter>
 
-      <AppInit />
+    <>
+
+      {!hideAppInit && <AppInit />}
 
       <Routes>
-
 
         <Route
           path="/login"
@@ -47,6 +49,8 @@ function App() {
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
+
+
 
           {/* Layout Routes */}
           <Route element={<MainLayout />}>
@@ -81,8 +85,8 @@ function App() {
         </Route>
 
       </Routes>
+    </>
 
-    </BrowserRouter>
   );
 }
 
