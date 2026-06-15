@@ -37,7 +37,7 @@ A full-stack paper trading platform that simulates real-world stock trading with
 | React + Vite | UI framework |
 | Redux Toolkit | State management |
 | React Router | Client-side routing |
-| Recharts | Portfolio charts |
+| Lightweight charts | Realtime Stock Price Charts |
 | Axios | HTTP client |
 | STOMP.js | WebSocket client |
 | Tailwind CSS | Styling |
