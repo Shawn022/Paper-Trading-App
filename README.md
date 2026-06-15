@@ -136,7 +136,13 @@ mvn clean package -DskipTests
 mvn spring-boot:run
 ```
 
-**4. Start the frontend**
+**4. Configure environment Frontend**
+```bash
+cp .env.example frontend/.env
+# Fill in your values in frontend/.env
+```
+
+**5. Start the frontend**
 ```bash
 cd frontend
 npm install
