@@ -2,6 +2,8 @@
 
 A full-stack paper trading platform that simulates real-world stock trading without financial risk. Built with Java Spring Boot and React, featuring real-time price updates, portfolio management, and comprehensive P&L tracking.
 
+LIVE WORKING DEMO : https://paper-tading.vercel.app/login
+
 ---
 
 ## 🚀 Features
