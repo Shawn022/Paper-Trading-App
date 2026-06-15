@@ -7,6 +7,7 @@ import {
 import { useEffect } from "react";
 
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage"
 import DashboardPage from "./pages/DashboardPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import MarketsPage from "./pages/MarketsPage";
@@ -38,6 +39,10 @@ function App() {
         <Route
           path="/login"
           element={<LoginPage />}
+        />
+        <Route
+          path="/register"
+          element={<RegisterPage />}
         />
 
         {/* Protected Routes */}

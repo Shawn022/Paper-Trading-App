@@ -37,7 +37,7 @@ function RegisterPage() {
         response.data.token
       );
 
-      navigate("/dashboard");
+      navigate("/");
 
     } catch (err) {
 

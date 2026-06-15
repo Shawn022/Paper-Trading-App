@@ -17,7 +17,7 @@ export const usePortfolioStore = create((set) => ({
         try {
             const data = await getPortfolio();
             set({ portfolio: data });
-        } finally {
+        }finally {
             set({ loading: false });
         }
     },
