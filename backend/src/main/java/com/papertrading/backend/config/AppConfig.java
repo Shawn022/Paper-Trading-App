@@ -19,7 +19,12 @@ public class AppConfig {
         return new WebMvcConfigurer() {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173")
+                        .allowedOrigins(Arrays.asList(
+                            "http://localhost:5173",
+                            "https://paper-trading-app-vercel-6m7n4j3hq.vercel.app"
+                            )
+                        )
+                    
                         .allowedHeaders("*")
                         .allowedMethods("*")
                         .allowCredentials(true);
