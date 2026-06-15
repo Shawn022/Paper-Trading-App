@@ -202,26 +202,27 @@ JWT_EXPIRATION=604800000
 ### Auth
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/v1/users/register` | Register new user |
-| POST | `/api/v1/users/login` | Login and get JWT token |
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | Login and get JWT token |
 
 ### Trading
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/v1/trade/buy` | Execute a buy order |
-| POST | `/api/v1/trade/sell` | Execute a sell order |
-| GET | `/api/v1/trade/history` | Get trade history |
+| POST | `/api/user/trade/buy` | Execute a buy order |
+| POST | `/api/user/trade/sell` | Execute a sell order |
+| GET | `/api/user/trades` | Get trade history |
 
 ### Portfolio
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/v1/portfolio` | Get portfolio with P&L |
+| GET | `/api/user/portfolio` | Get portfolio with P&L |
 
 ### Stocks
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/v1/stocks` | Get available stocks |
-| GET | `/api/v1/stocks/{symbol}` | Get stock details |
+| GET | `/api/stock/supported` | Get available stocks |
+| GET | `/api/stock/{symbol}` | Get current stock price |
+| GET | `/api/stock/{symbol}/history` | Get stock detail |
 
 ### WebSocket
 | Endpoint | Description |
