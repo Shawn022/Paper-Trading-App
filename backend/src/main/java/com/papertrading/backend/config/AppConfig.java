@@ -6,6 +6,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+
 @Configuration
 public class AppConfig {
 
@@ -19,10 +20,9 @@ public class AppConfig {
         return new WebMvcConfigurer() {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins(Arrays.asList(
+                        .allowedOrigins(
                             "http://localhost:5173",
-                            "https://paper-trading-app-vercel-6m7n4j3hq.vercel.app"
-                            )
+                            "https://paper-tading.vercel.app"
                         )
                     
                         .allowedHeaders("*")
