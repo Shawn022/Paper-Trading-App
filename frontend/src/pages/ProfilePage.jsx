@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { usePortfolioStore } from "../store/portfolioStore";
 
 function getInitials(name) {
     if (!name) return "?";
@@ -36,6 +37,7 @@ function ProfilePage() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const {portfolio} = usePortfolioStore();
 
     useEffect(() => {
         api.get("/api/auth/me")
@@ -67,8 +69,8 @@ function ProfilePage() {
     }
 
     const balance = Number(user.balance ?? 0);
-    const invested = Number(user.totalInvested ?? 0);
-    const pnl = Number(user.pnl ?? 0);
+    const invested = Number(portfolio.holdingsValue ?? 0);
+    const pnl = Number(portfolio.unrealisedPnL ?? 0);
     const isProfit = pnl >= 0;
     const joinedAt = user.createdAt
         ? new Date(user.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
