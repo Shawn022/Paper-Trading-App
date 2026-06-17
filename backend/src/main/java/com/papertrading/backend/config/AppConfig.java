@@ -22,7 +22,7 @@ public class AppConfig {
                 registry.addMapping("/**")
                         .allowedOrigins(
                             "http://localhost:5173",
-                            "https://shawns-paper-tading.vercel.app"
+                            "https://shawns-paper-trading.vercel.app"
                         )
                     
                         .allowedHeaders("*")

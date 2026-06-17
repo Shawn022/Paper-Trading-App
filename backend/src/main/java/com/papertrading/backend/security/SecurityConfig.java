@@ -50,7 +50,8 @@ public class SecurityConfig{
 
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/api/auth/login" , "/api/auth/register").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/stock/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/suggestion/**").permitAll()
