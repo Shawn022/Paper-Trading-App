@@ -1,11 +1,8 @@
 import {
-  BrowserRouter,
   Routes,
   Route,
-  Navigate,
   useLocation
 } from "react-router-dom";
-import { useEffect } from "react";
 
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage"

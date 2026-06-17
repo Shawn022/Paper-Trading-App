@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { Minus, PackageCheck, Plus, TrendingDown } from "lucide-react";
+
 import { usePortfolioStore } from "../store/portfolioStore";
 import { sellStock } from "../services/tradeService";
+import { formatCurrency, formatNumber, toNumber } from "../utils/formatters";
 
 function SellBox({ symbol, onResult }) {
     const [qty, setQty] = useState(1);
@@ -8,8 +11,13 @@ function SellBox({ symbol, onResult }) {
 
     const { portfolio, fetchPortfolio } = usePortfolioStore();
     const holding = portfolio?.holdings?.find(h => h.symbol === symbol);
-    const holdingQty = holding?.quantity || 0;
-    const avgBuyPrice = holding?.avgBuyPrice || 0;
+    const holdingQty = toNumber(holding?.quantity);
+    const avgBuyPrice = toNumber(holding?.avgBuyPrice);
+
+    function updateQty(value) {
+        const nextQty = Math.max(1, Math.floor(toNumber(value, 1)));
+        setQty(Math.min(holdingQty || 1, nextQty));
+    }
 
     const handleSell = async () => {
         if (qty <= 0) return;
@@ -17,14 +25,16 @@ function SellBox({ symbol, onResult }) {
             onResult("Sell Failed", "Not enough holdings.");
             return;
         }
+
         setLoading(true);
+
         try {
             const trade = await sellStock(symbol, qty);
             await fetchPortfolio();
-            const total = Number(trade.quantity) * Number(trade.price);
+            const total = toNumber(trade.quantity) * toNumber(trade.price);
             onResult(
                 "Sell Successful",
-                `Sold ${trade.quantity} shares of ${trade.symbol}\n\nPrice: ₹${Number(trade.price).toLocaleString("en-IN")}\nTotal: ₹${total.toLocaleString("en-IN")}`
+                `Sold ${formatNumber(trade.quantity, { maximumFractionDigits: 2 })} shares of ${trade.symbol}\n\nPrice: ${formatCurrency(trade.price)}\nTotal: ${formatCurrency(total)}`
             );
             setQty(1);
         } catch (err) {
@@ -37,63 +47,78 @@ function SellBox({ symbol, onResult }) {
     if (holdingQty <= 0) return null;
 
     return (
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-red-50">
-                <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-red-500" />
-                    <span className="text-sm font-bold text-red-800 uppercase tracking-widest">Sell {symbol}</span>
+        <section className="overflow-hidden rounded-3xl border border-rose-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-rose-100 bg-rose-50 px-5 py-4">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-sm">
+                        <TrendingDown className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-rose-700">
+                            Sell order
+                        </p>
+                        <h3 className="text-lg font-black text-slate-950">{symbol}</h3>
+                    </div>
                 </div>
             </div>
 
-            <div className="px-5 py-4 space-y-4">
-                {/* Holdings summary */}
+            <div className="space-y-4 p-5">
                 <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-slate-50 rounded-xl px-3 py-2.5">
-                        <p className="text-xs text-slate-400 mb-0.5">Holding</p>
-                        <p className="text-sm font-semibold text-slate-800">{holdingQty} shares</p>
+                    <div className="rounded-2xl bg-slate-50 px-3 py-3">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+                            <PackageCheck className="h-3.5 w-3.5" />
+                            Holding
+                        </div>
+                        <p className="mt-1 text-sm font-black text-slate-900">
+                            {formatNumber(holdingQty, { maximumFractionDigits: 2 })} shares
+                        </p>
                     </div>
-                    <div className="bg-slate-50 rounded-xl px-3 py-2.5">
-                        <p className="text-xs text-slate-400 mb-0.5">Avg buy price</p>
-                        <p className="text-sm font-semibold text-slate-800 tabular-nums">
-                            ₹{Number(avgBuyPrice).toLocaleString("en-IN")}
+                    <div className="rounded-2xl bg-slate-50 px-3 py-3">
+                        <p className="text-xs font-semibold text-slate-400">Avg buy</p>
+                        <p className="mt-1 text-sm font-black text-slate-900">
+                            {formatCurrency(avgBuyPrice)}
                         </p>
                     </div>
                 </div>
 
-                {/* Qty input */}
                 <div>
-                    <label className="text-xs text-slate-400 font-medium mb-1.5 block">Quantity to sell</label>
-                    <div className="flex items-center gap-2">
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
+                        Quantity to sell
+                    </label>
+                    <div className="grid grid-cols-[44px_1fr_44px] gap-2">
                         <button
                             type="button"
-                            onClick={() => setQty(q => Math.max(1, q - 1))}
-                            className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-lg transition"
+                            onClick={() => setQty(q => Math.max(1, toNumber(q, 1) - 1))}
+                            className="flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+                            aria-label="Decrease sell quantity"
                         >
-                            −
+                            <Minus className="h-4 w-4" />
                         </button>
                         <input
                             type="number"
                             min="1"
                             max={holdingQty}
                             value={qty}
-                            onChange={(e) => setQty(Math.max(1, Math.min(holdingQty, Number(e.target.value))))}
-                            className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-center text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent"
+                            onChange={(e) => updateQty(e.target.value)}
+                            className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-center text-sm font-black text-slate-900 outline-none transition focus:border-rose-300 focus:ring-4 focus:ring-rose-100"
                         />
                         <button
                             type="button"
-                            onClick={() => setQty(q => Math.min(holdingQty, q + 1))}
-                            className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-lg transition"
+                            onClick={() => setQty(q => Math.min(holdingQty, toNumber(q, 1) + 1))}
+                            className="flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+                            aria-label="Increase sell quantity"
                         >
-                            +
+                            <Plus className="h-4 w-4" />
                         </button>
                     </div>
-                    <div className="flex justify-between mt-1.5">
-                        <p className="text-xs text-slate-400">Max: {holdingQty} shares</p>
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                        <p className="text-xs font-medium text-slate-400">
+                            Max: {formatNumber(holdingQty, { maximumFractionDigits: 2 })} shares
+                        </p>
                         <button
                             type="button"
                             onClick={() => setQty(holdingQty)}
-                            className="text-xs text-red-500 hover:text-red-700 font-medium transition"
+                            className="text-xs font-black text-rose-600 transition hover:text-rose-800"
                         >
                             Sell all
                         </button>
@@ -104,19 +129,19 @@ function SellBox({ symbol, onResult }) {
                     type="button"
                     onClick={handleSell}
                     disabled={loading || qty > holdingQty || qty <= 0}
-                    className="w-full bg-red-600 hover:bg-red-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 flex items-center justify-center gap-2"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-rose-600 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-rose-700 disabled:bg-slate-200 disabled:text-slate-400"
                 >
                     {loading ? (
                         <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            Placing order…
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            Placing order...
                         </>
                     ) : (
-                        `Sell ${qty} share${qty !== 1 ? "s" : ""}`
+                        `Sell ${formatNumber(qty, { maximumFractionDigits: 0 })} share${qty !== 1 ? "s" : ""}`
                     )}
                 </button>
             </div>
-        </div>
+        </section>
     );
 }
 

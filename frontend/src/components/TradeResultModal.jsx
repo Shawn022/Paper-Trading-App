@@ -1,24 +1,25 @@
+import { CheckCircle2, XCircle } from "lucide-react";
+
 function TradeResultModal({ open, title, message, type = "success", onClose }) {
     if (!open) return null;
 
     const isSuccess = type === "success";
+    const Icon = isSuccess ? CheckCircle2 : XCircle;
 
     return (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl animate-in">
-
-                {/* Icon stripe */}
-                <div className={`flex items-center justify-center h-20 rounded-t-2xl ${isSuccess ? "bg-green-50" : "bg-red-50"}`}>
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${isSuccess ? "bg-green-100" : "bg-red-100"}`}>
-                        {isSuccess ? "✓" : "✕"}
+        <div className="absolute inset-0 z-50 flex items-end justify-center bg-slate-950/45 p-4 backdrop-blur-sm sm:items-center">
+            <div className="w-full max-w-sm overflow-hidden rounded-3xl bg-white shadow-2xl shadow-slate-950/25">
+                <div className={`flex items-center justify-center px-6 py-8 ${isSuccess ? "bg-emerald-50" : "bg-rose-50"}`}>
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-full ${isSuccess ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
+                        <Icon className="h-8 w-8" />
                     </div>
                 </div>
 
-                <div className="px-6 py-5">
-                    <h2 className={`text-lg font-bold text-center mb-1 ${isSuccess ? "text-green-700" : "text-red-700"}`}>
+                <div className="px-6 py-5 text-center">
+                    <h2 className={`text-xl font-black ${isSuccess ? "text-emerald-700" : "text-rose-700"}`}>
                         {title}
                     </h2>
-                    <p className="whitespace-pre-line text-slate-600 text-sm text-center leading-relaxed">
+                    <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-500">
                         {message}
                     </p>
                 </div>
@@ -27,13 +28,11 @@ function TradeResultModal({ open, title, message, type = "success", onClose }) {
                     <button
                         type="button"
                         onClick={onClose}
-                        className={`w-full py-2.5 rounded-xl font-semibold text-sm text-white transition ${isSuccess ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
-                            }`}
+                        className={`w-full rounded-2xl py-3 text-sm font-black text-white transition ${isSuccess ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700"}`}
                     >
                         Done
                     </button>
                 </div>
-
             </div>
         </div>
     );

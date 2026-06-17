@@ -22,7 +22,7 @@ export async function getBestBuySellIntraday(symbol, k = 3) {
 
 export async function getBestBuySellHistorical(symbol, k = 3) {
     const res = await api.get(
-        `/api/suggestion/buy-sell/historical`,
+        `/api/suggestion/buy-sell/history`,
         {
             params: { symbol, k }
         }
