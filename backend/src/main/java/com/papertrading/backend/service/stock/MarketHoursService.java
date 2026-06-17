@@ -17,7 +17,7 @@ public class MarketHoursService {
             LocalTime.of(9, 15);
 
     private static final LocalTime MARKET_CLOSE =
-            LocalTime.of(15, 30);
+            LocalTime.of(15, 35);
 
     public boolean isMarketOpen() {
 

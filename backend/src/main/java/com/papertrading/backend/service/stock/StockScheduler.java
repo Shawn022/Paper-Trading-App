@@ -70,7 +70,7 @@ public class StockScheduler {
         System.out.println("Initial Setup Completed");
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 30000)
     public void updateIntraday() {
 
         if(!marketHoursService.isMarketOpen() || !stockCacheService.stockLoaded()){
@@ -82,7 +82,7 @@ public class StockScheduler {
 
             stockCacheService.putStock("stock:intraday:" + symbol, candles);
 
-            if(!isSynthetic(candles.getLast())){
+            if(candles.getLast()!=null){
                 priceBroadcastService.publish(symbol, candles.getLast());
             }
         });
@@ -105,7 +105,7 @@ public class StockScheduler {
 
     @Scheduled(fixedRate = 60 * 60000)
     public void setTopStocksIntraday(){
-        if(!stockCacheService.stockLoaded())
+        if(!stockCacheService.stockLoaded() || !marketHoursService.isMarketOpen())
             return;
         suggestionService.cacheTopStocks("intraday");
     }

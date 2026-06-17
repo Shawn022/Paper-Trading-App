@@ -10,7 +10,7 @@ function AppInit() {
     useEffect(() => {
         fetchPortfolio();
 
-    }, [fetchPortfolio]);
+    }, []);
 
     useEffect(() => {
         connectWebSocket();

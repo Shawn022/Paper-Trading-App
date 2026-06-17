@@ -15,6 +15,7 @@ import MarketsPage from "./pages/MarketsPage";
 import HistoryPage from "./pages/HistoryPage";
 import StockPage from "./pages/StockPage";
 import AppInit from "./AppInit";
+import ProfilePage from "./pages/ProfilePage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
@@ -73,6 +74,11 @@ function App() {
             <Route
               path="/history"
               element={<HistoryPage />}
+            />
+
+            <Route
+              path="/profile"
+              element={<ProfilePage />}
             />
 
             <Route
